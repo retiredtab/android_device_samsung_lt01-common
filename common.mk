@@ -43,7 +43,8 @@ PRODUCT_COPY_FILES := \
 
 # Camera
 PRODUCT_PACKAGES += \
-    camera.smdk4x12
+    camera.smdk4x12 \
+	libcameraservice
 
 # IRDA
 PRODUCT_PACKAGES += \
@@ -55,6 +56,7 @@ PRODUCT_PACKAGES += \
 
 # Sensors
 PRODUCT_PACKAGES += \
+    sensorservice \
     sensors.smdk4x12
 
 # Packages

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 LOCAL_PATH := $(call my-dir)
 
 ifneq ($(TARGET_SIMULATOR),true)
@@ -28,28 +29,20 @@ LOCAL_MODULE_TAGS := optional
 
 LOCAL_CFLAGS := -DLOG_TAG=\"Sensors\"
 
-ifneq ($(filter lt013g lt01lte,$(TARGET_DEVICE)),)
-    LOCAL_CFLAGS += -DHAVE_SENSORS_CM36653
-endif
-
-ifeq ($(TARGET_DEVICE),lt01wifi)
-    LOCAL_CFLAGS += -DHAVE_SENSORS_CM3323
-endif
-
-LOCAL_SRC_FILES := \
-		sensors.cpp \
-		SensorBase.cpp \
-		LightSensor.cpp \
-		ProximitySensor.cpp \
-		AccelSensor.cpp \
-		CompassSensor.cpp \
-		OrientationSensor.cpp \
-		InputEventReader.cpp
+LOCAL_SRC_FILES := 						\
+				sensors.cpp 			\
+				SensorBase.cpp			\
+				LightSensor.cpp			\
+				ProximitySensor.cpp		\
+				AkmSensor.cpp                   \
+				GyroSensor.cpp                  \
+                                InputEventReader.cpp            \
+                                AccelSensor.cpp                 \
+                                PressureSensor.cpp
 
 LOCAL_SHARED_LIBRARIES := liblog libcutils libdl
 LOCAL_PRELINK_MODULE := false
 
 include $(BUILD_SHARED_LIBRARY)
 
-endif
-
+endif # !TARGET_SIMULATOR

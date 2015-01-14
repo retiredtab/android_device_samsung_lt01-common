@@ -21,10 +21,14 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/select.h>
+#include <stdio.h>
 
-#include <cutils/log.h>
+#include <utils/Log.h>
 
 #include "ProximitySensor.h"
+#include "SensorBase.h"
+
+#define LOGTAG "ProximitySensor"
 
 /*****************************************************************************/
 
@@ -44,7 +48,6 @@ ProximitySensor::ProximitySensor()
         strcat(input_sysfs_path, input_name);
         strcat(input_sysfs_path, "/device/");
         input_sysfs_path_len = strlen(input_sysfs_path);
-        enable(0, 1);
     }
 }
 
@@ -64,27 +67,36 @@ int ProximitySensor::setInitialState() {
     return 0;
 }
 
-int ProximitySensor::enable(int32_t, int en) {
+int ProximitySensor::setDelay(int32_t handle, int64_t ns)
+{
+    int fd;
+
+    strcpy(&input_sysfs_path[input_sysfs_path_len], "prox_poll_delay");
+    fd = open(input_sysfs_path, O_RDWR);
+    if (fd >= 0) {
+        char buf[80];
+        sprintf(buf, "%lld", ns);
+        write(fd, buf, strlen(buf)+1);
+        close(fd);
+        return 0;
+    }
+    return -1;
+}
+
+int ProximitySensor::enable(int32_t handle, int en) {
+
     int flags = en ? 1 : 0;
+    int err;
+    //ALOGD("%s: Enable: %i", __func__, en);
     if (flags != mEnabled) {
-        int fd;
-        strcpy(&input_sysfs_path[input_sysfs_path_len], "enable");
-        fd = open(input_sysfs_path, O_RDWR);
-        if (fd >= 0) {
-            char buf[2];
-            buf[1] = 0;
-            if (flags) {
-                buf[0] = '1';
-            } else {
-                buf[0] = '0';
-            }
-            write(fd, buf, sizeof(buf));
-            close(fd);
-            mEnabled = flags;
-            setInitialState();
-            return 0;
-        }
-        return -1;
+         err = sspEnable(LOGTAG, SSP_PROX, en);
+         if(err >= 0){
+             mEnabled = flags;
+             setInitialState();
+
+             return 0;
+         }
+         return -1;
     }
     return 0;
 }
@@ -129,7 +141,7 @@ int ProximitySensor::readEvents(sensors_event_t* data, int count)
                 numEventReceived++;
             }
         } else {
-            ALOGE("ProximitySensor: unknown event (type=%d, code=%d)",
+            ALOGE("%s: unknown event (type=%d, code=%d)",LOGTAG,
                     type, event->code);
         }
         mInputReader.next();
@@ -140,5 +152,6 @@ int ProximitySensor::readEvents(sensors_event_t* data, int count)
 
 float ProximitySensor::indexToValue(size_t index) const
 {
+    ALOGV("%s: Index = %zu",LOGTAG, index);
     return index * PROXIMITY_THRESHOLD_CM;
 }

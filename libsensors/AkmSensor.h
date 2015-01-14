@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef ANDROID_ORIEN_SENSOR_H
-#define ANDROID_ORIEN_SENSOR_H
+#ifndef ANDROID_AKM_SENSOR_H
+#define ANDROID_AKM_SENSOR_H
 
 #include <stdint.h>
 #include <errno.h>
 #include <sys/cdefs.h>
 #include <sys/types.h>
+
 
 #include "sensors.h"
 #include "SensorBase.h"
@@ -28,27 +29,38 @@
 
 /*****************************************************************************/
 
-
 struct input_event;
 
-class OrientationSensor : public SensorBase {
-    int mEnabled;
-    InputEventCircularReader mInputReader;
-    sensors_event_t mPendingEvent;
-    bool mHasPendingEvent;
-    char input_sysfs_path[PATH_MAX];
-    int input_sysfs_path_len;
-
-
+class AkmSensor : public SensorBase {
 public:
-            OrientationSensor();
-    virtual ~OrientationSensor();
-    virtual int readEvents(sensors_event_t* data, int count);
-    virtual bool hasPendingEvents() const;
+            AkmSensor();
+    virtual ~AkmSensor();
+
+    enum {
+        Accelerometer   = 0,
+        MagneticField   = 1,
+        Orientation     = 2,
+        numSensors
+    };
+
     virtual int setDelay(int32_t handle, int64_t ns);
     virtual int enable(int32_t handle, int enabled);
+    virtual int readEvents(sensors_event_t* data, int count);
+    void processEvent(int code, int value);
+
+    int setInitialState();
+
+private:
+    int loadAKMLibrary();
+    int update_delay();
+    void *mLibAKM;
+    uint32_t mEnabled;
+    uint32_t mPendingMask;
+    InputEventCircularReader mInputReader;
+    sensors_event_t mPendingEvents[numSensors];
+    uint64_t mDelays[numSensors];
 };
 
 /*****************************************************************************/
 
-#endif  // ANDROID_GYRO_SENSOR_H
+#endif  // ANDROID_AKM_SENSOR_H

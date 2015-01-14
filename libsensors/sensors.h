@@ -39,6 +39,26 @@ __BEGIN_DECLS
 #define ID_L  (3)
 #define ID_P  (4)
 #define ID_GY (5)
+#define ID_PR (6)
+
+#define SSP_ACCEL  (1)
+#define SSP_GYRO   (2)
+#define SSP_MAG    (4)
+#define SSP_PRESS  (8)
+#define SSP_PROX   (32)
+#define SSP_LIGHT  (64)
+
+#define SSP_DEVICE_ENABLE   "/sys/class/sensors/ssp_sensor/enable"
+
+const int ssp_sensors[] = {
+  SSP_ACCEL,
+  SSP_GYRO,
+  SSP_MAG,
+  SSP_PRESS,
+  SSP_PROX,
+  SSP_LIGHT
+};
+
 
 /*****************************************************************************/
 
@@ -46,45 +66,40 @@ __BEGIN_DECLS
  * The SENSORS Module
  */
 
-/* the CM36653 is a binary proximity sensor that triggers around 5 cm on
+/* the CM3663 is a binary proximity sensor that triggers around 6 cm on
  * this hardware */
-#define PROXIMITY_THRESHOLD_CM  5.0f
+#define PROXIMITY_THRESHOLD_CM  8.0f
 
 /*****************************************************************************/
 
-#define EVENT_TYPE_ACCEL_X          ABS_X
-#define EVENT_TYPE_ACCEL_Y          ABS_Y
-#define EVENT_TYPE_ACCEL_Z          ABS_Z
+#define EVENT_TYPE_ACCEL_X          REL_X  //1
+#define EVENT_TYPE_ACCEL_Y          REL_Y  //0
+#define EVENT_TYPE_ACCEL_Z          REL_Z  //2
 
-#define EVENT_TYPE_YAW              REL_X
-#define EVENT_TYPE_PITCH            REL_Y
-#define EVENT_TYPE_ROLL             REL_Z
-#define EVENT_TYPE_ORIENT_STATUS    REL_WHEEL
+#define EVENT_TYPE_YAW              ABS_RX  //3
+#define EVENT_TYPE_PITCH            ABS_RY  //4
+#define EVENT_TYPE_ROLL             ABS_RZ  //5
+#define EVENT_TYPE_ORIENT_STATUS    ABS_WHEEL //8
 
-/* For AK8973iB */
-#define EVENT_TYPE_MAGV_X           ABS_X
-#define EVENT_TYPE_MAGV_Y           ABS_Y
-#define EVENT_TYPE_MAGV_Z           ABS_Z
+#define EVENT_TYPE_MAGV_X           ABS_RX  // 3
+#define EVENT_TYPE_MAGV_Y           ABS_RY  // 4
+#define EVENT_TYPE_MAGV_Z           ABS_RZ  // 5
 
+#define EVENT_TYPE_TEMPERATURE      ABS_THROTTLE
+#define EVENT_TYPE_STEP_COUNT       ABS_GAS
 #define EVENT_TYPE_PROXIMITY        ABS_DISTANCE
 #define EVENT_TYPE_LIGHT            REL_MISC
 
-#define EVENT_TYPE_GYRO_X           REL_RY
-#define EVENT_TYPE_GYRO_Y           REL_RX
+#define EVENT_TYPE_GYRO_X           REL_RX
+#define EVENT_TYPE_GYRO_Y           REL_RY
 #define EVENT_TYPE_GYRO_Z           REL_RZ
 
-// 720 LSG = 1G
-#define NUMOFACCDATA                8
+#define EVENT_TYPE_PRESSURE         REL_HWHEEL
 
-// conversion of acceleration data to SI units (m/s^2)
-/* Accel BMA250 */
-#define EVENT_TYPE_ACCEL_X          ABS_X
-#define EVENT_TYPE_ACCEL_Y          ABS_Y
-#define EVENT_TYPE_ACCEL_Z          ABS_Z
 #define LSG                         (1000.0f)
 
 // conversion of acceleration data to SI units (m/s^2)
-#define RANGE_A                     (4*GRAVITY_EARTH)
+#define RANGE_A                     (2*GRAVITY_EARTH)
 #define RESOLUTION_A                (GRAVITY_EARTH / LSG)
 #define CONVERT_A                   (GRAVITY_EARTH / LSG)
 #define CONVERT_A_X                 (CONVERT_A)
@@ -92,7 +107,7 @@ __BEGIN_DECLS
 #define CONVERT_A_Z                 (CONVERT_A)
 
 // conversion of magnetic data to uT units
-#define CONVERT_M                   (1.0f/1000.0.0f)
+#define CONVERT_M                   (1.0f/16.0f)
 #define CONVERT_M_X                 (CONVERT_M)
 #define CONVERT_M_Y                 (CONVERT_M)
 #define CONVERT_M_Z                 (CONVERT_M)
@@ -105,9 +120,9 @@ __BEGIN_DECLS
 
 // conversion of gyro data to SI units (radian/sec)
 #define RANGE_GYRO                  (2000.0f*(float)M_PI/180.0f)
-#define CONVERT_GYRO                ((70.0f / 1000.0f) * ((float)M_PI / 180.0f))
+#define CONVERT_GYRO                ((70.0f / 4000.0f) * ((float)M_PI / 180.0f))
 #define CONVERT_GYRO_X              (CONVERT_GYRO)
-#define CONVERT_GYRO_Y              (-CONVERT_GYRO)
+#define CONVERT_GYRO_Y              (CONVERT_GYRO)
 #define CONVERT_GYRO_Z              (CONVERT_GYRO)
 
 #define SENSOR_STATE_MASK           (0x7FFF)

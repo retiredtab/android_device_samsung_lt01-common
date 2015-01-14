@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef ANDROID_SMB380_SENSOR_H
-#define ANDROID_SMB380_SENSOR_H
+#ifndef ANDROID_GYRO_SENSOR_H
+#define ANDROID_GYRO_SENSOR_H
 
 #include <stdint.h>
 #include <errno.h>
@@ -28,37 +28,22 @@
 
 /*****************************************************************************/
 
-
-struct smb380acc_t {
-		short x, /**< holds x-axis acceleration data sign extended. Range -512 to 511. */
-		      y, /**< holds y-axis acceleration data sign extended. Range -512 to 511. */
-		      z; /**< holds z-axis acceleration data sign extended. Range -512 to 511. */
-} ;
-
-/* smb ioctl command label */
-#define IOCTL_SMB_GET_ACC_VALUE		0
-#define DCM_IOC_MAGIC			's'
-#define IOC_SET_ACCELEROMETER	_IO (DCM_IOC_MAGIC, 0x64)
-#define BMA150_CALIBRATION		_IOWR(DCM_IOC_MAGIC,48,short)
-
-#define SMB_POWER_OFF               0
-#define SMB_POWER_ON                1
-
 struct input_event;
 
-class AccelSensor : public SensorBase {
+class GyroSensor : public SensorBase {
     int mEnabled;
     InputEventCircularReader mInputReader;
     sensors_event_t mPendingEvent;
     bool mHasPendingEvent;
     char input_sysfs_path[PATH_MAX];
     int input_sysfs_path_len;
+    int64_t mEnabledTime;
 
     int setInitialState();
 
 public:
-            AccelSensor();
-    virtual ~AccelSensor();
+            GyroSensor();
+    virtual ~GyroSensor();
     virtual int readEvents(sensors_event_t* data, int count);
     virtual bool hasPendingEvents() const;
     virtual int setDelay(int32_t handle, int64_t ns);

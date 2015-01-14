@@ -38,6 +38,7 @@ class LightSensor : public SensorBase {
     char input_sysfs_path[PATH_MAX];
     int input_sysfs_path_len;
 
+    float indexToValue(size_t index) const;
     int setInitialState();
 
 public:
