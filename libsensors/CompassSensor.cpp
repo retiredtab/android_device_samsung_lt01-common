@@ -24,24 +24,26 @@
 #include <cutils/log.h>
 
 
-#include "AccelSensor.h"
+#include "CompassSensor.h"
 
 
 /*****************************************************************************/
-AccelSensor::AccelSensor()
-    : SensorBase(NULL, "accelerometer"),
-      mEnabled(0),
-
+CompassSensor::CompassSensor()
+    : SensorBase(NULL, "geomagnetic"),
+      //mEnabled(0),
       mInputReader(4),
       mHasPendingEvent(false)
 {
-   // ALOGD("AccelSensor::AccelSensor()");
+    //ALOGD("CompassSensor::CompassSensor()");
     mPendingEvent.version = sizeof(sensors_event_t);
-    mPendingEvent.sensor = ID_A;
-    mPendingEvent.type = SENSOR_TYPE_ACCELEROMETER;
+    mPendingEvent.sensor = ID_M;
+    mPendingEvent.type = SENSOR_TYPE_MAGNETIC_FIELD;
+    mPendingEvent.magnetic.status = SENSOR_STATUS_ACCURACY_HIGH;
+    
+    
     memset(mPendingEvent.data, 0, sizeof(mPendingEvent.data));
     
- //   ALOGD("AccelSensor::AccelSensor() open data_fd");
+ //   ALOGD("CompassSensor::CompassSensor() open data_fd");
 	
     if (data_fd) {
         strcpy(input_sysfs_path, "/sys/class/input/");
@@ -51,12 +53,13 @@ AccelSensor::AccelSensor()
 
         //enable(0, 1);
     }
-    //    ALOGE("AccelSensor: sysfs: %s",input_sysfs_path);
+    
+  //  ALOGE("MagneticSensor: sysfs: %s",input_sysfs_path);
 }
 
-AccelSensor::~AccelSensor() {
+CompassSensor::~CompassSensor() {
 
-  //  ALOGD("AccelSensor::~AccelSensor()");
+  //  ALOGD("CompassSensor::~CompassSensor()");
     if (mEnabled) {
         enable(0, 0);
     }
@@ -64,18 +67,18 @@ AccelSensor::~AccelSensor() {
 
 
 
-int AccelSensor::enable(int32_t, int en) {
+int CompassSensor::enable(int32_t, int en) {
 
 	   
-  //  ALOGD("AccelSensor::~enable(0, %d)", en);
+   // ALOGD("CompassSensor::~enable(0, %d)", en);
     int flags = en ? 1 : 0;
     if (flags != mEnabled) {
         int fd;
         strcpy(&input_sysfs_path[input_sysfs_path_len], "enable");
-       // ALOGD("AccelSensor::~enable(0, %d) open %s",en,  input_sysfs_path);
+        //ALOGD("CompassSensor::~enable(0, %d) open %s",en,  input_sysfs_path);
         fd = open(input_sysfs_path, O_RDWR);
         if (fd >= 0) {
-           //  ALOGD("AccelSensor::~enable(0, %d) opened %s",en,  input_sysfs_path);
+            // ALOGD("CompassSensor::~enable(0, %d) opened %s",en,  input_sysfs_path);
             char buf[2];
             int err;
             buf[1] = 0;
@@ -87,7 +90,6 @@ int AccelSensor::enable(int32_t, int en) {
             err = write(fd, buf, sizeof(buf));
             close(fd);
             mEnabled = flags;
-            //setInitialState();
             return 0;
         }
         return -1;        
@@ -96,29 +98,39 @@ int AccelSensor::enable(int32_t, int en) {
 }
 
 
-bool AccelSensor::hasPendingEvents() const {
+bool CompassSensor::hasPendingEvents() const {
     /* FIXME probably here should be returning mEnabled but instead
 	mHasPendingEvents. It does not work, so we cheat.*/
-    //ALOGD("AccelSensor::~hasPendingEvents %d", mHasPendingEvent ? 1 : 0 );
+    //ALOGD("CompassSensor::~hasPendingEvents %d", mHasPendingEvent ? 1 : 0 );
     return mHasPendingEvent;
 }
 
 
-int AccelSensor::setDelay(int32_t handle, int64_t ns)
+int CompassSensor::setDelay(int32_t handle, int64_t ns)
 {
-  //  ALOGD("AccelSensor::~setDelay(%d, %lld)", handle, ns);
-
     int fd;
+    int val;
 
-    if (ns < 10000000) {
-        ns = 10000000; // Minimum on stock
+    // Kernel driver only support specific values
+    if (ns < 20000000L) {
+        val = 1;
+    } else if (ns < 60000000L) {
+        val = 20;
+    } else if (ns < 200000000L) {
+        val = 60;
+    } else if (ns < 1000000000L) {
+        val = 200;
+    } else {
+        val = 1000;
     }
 
-    strcpy(&input_sysfs_path[input_sysfs_path_len], "poll_delay");
+ //   ALOGD("CompassSensor::~setDelay(%d, %lld) val = %d", handle, ns, val);
+
+    strcpy(&input_sysfs_path[input_sysfs_path_len], "delay");
     fd = open(input_sysfs_path, O_RDWR);
     if (fd >= 0) {
         char buf[80];
-        sprintf(buf, "%lld", ns / 10000000 * 10); // Some flooring to match stock value
+        sprintf(buf, "%d", val);
         write(fd, buf, strlen(buf)+1);
         close(fd);
         return 0;
@@ -127,9 +139,9 @@ int AccelSensor::setDelay(int32_t handle, int64_t ns)
 }
 
 
-int AccelSensor::readEvents(sensors_event_t* data, int count)
+int CompassSensor::readEvents(sensors_event_t* data, int count)
 {
-    //ALOGD("AccelSensor::~readEvents() %d", count);
+    //ALOGD("CompassSensor::~readEvents() %d", count);
     if (count < 1)
         return -EINVAL;
         
@@ -151,12 +163,12 @@ int AccelSensor::readEvents(sensors_event_t* data, int count)
         int type = event->type;
         if (type == EV_ABS) {
             float value = event->value;
-            if (event->code == EVENT_TYPE_ACCEL_X) {
-                mPendingEvent.acceleration.x = value * CONVERT_A_X;
-            } else if (event->code == EVENT_TYPE_ACCEL_Y) {
-                mPendingEvent.acceleration.y = value * CONVERT_A_Y;
-            } else if (event->code == EVENT_TYPE_ACCEL_Z) {
-                mPendingEvent.acceleration.z = value * CONVERT_A_Z;
+            if (event->code == EVENT_TYPE_MAGV_X) {
+                mPendingEvent.magnetic.x = (float)value / 1000.0f;
+            } else if (event->code == EVENT_TYPE_MAGV_Y) {
+                mPendingEvent.magnetic.y = (float)value / 1000.0f;
+            } else if (event->code == EVENT_TYPE_MAGV_Z) {
+                mPendingEvent.magnetic.z = (float)value / 1000.0f;
             }
         } else if (type == EV_SYN) {
             mPendingEvent.timestamp = timevalToNano(event->time);
@@ -166,11 +178,13 @@ int AccelSensor::readEvents(sensors_event_t* data, int count)
                 numEventReceived++;
             }
         } else {
-            ALOGE("AccelSensor: unknown event (type=%d, code=%d)",
+            ALOGE("CompassSensor: unknown event (type=%d, code=%d)",
                     type, event->code);
         }
         mInputReader.next();
     }
+ 
+	//ALOGD("CompassSensor::~readEvents() numEventReceived = %d", numEventReceived);
 	return numEventReceived++;
 		
 }

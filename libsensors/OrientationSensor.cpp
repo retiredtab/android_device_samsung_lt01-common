@@ -21,27 +21,27 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/select.h>
+#include <cutils/properties.h>
 #include <cutils/log.h>
 
 
-#include "AccelSensor.h"
+#include "OrientationSensor.h"
 
 
 /*****************************************************************************/
-AccelSensor::AccelSensor()
-    : SensorBase(NULL, "accelerometer"),
+OrientationSensor::OrientationSensor()
+    : SensorBase(NULL, "orientation"),
       mEnabled(0),
-
       mInputReader(4),
       mHasPendingEvent(false)
 {
-   // ALOGD("AccelSensor::AccelSensor()");
+ //   ALOGD("OrientationSensor::OrientationSensor()");
     mPendingEvent.version = sizeof(sensors_event_t);
-    mPendingEvent.sensor = ID_A;
-    mPendingEvent.type = SENSOR_TYPE_ACCELEROMETER;
+    mPendingEvent.sensor = ID_O;
+    mPendingEvent.type =  SENSOR_TYPE_ORIENTATION;
     memset(mPendingEvent.data, 0, sizeof(mPendingEvent.data));
     
- //   ALOGD("AccelSensor::AccelSensor() open data_fd");
+  //  ALOGD("OrientationSensor::OrientationSensor() open data_fd");
 	
     if (data_fd) {
         strcpy(input_sysfs_path, "/sys/class/input/");
@@ -49,33 +49,32 @@ AccelSensor::AccelSensor()
         strcat(input_sysfs_path, "/device/");
         input_sysfs_path_len = strlen(input_sysfs_path);
 
-        //enable(0, 1);
+       // enable(0, 1);
+	//ALOGE("OrientationSensor: sysfs: %s",input_sysfs_path);
     }
-    //    ALOGE("AccelSensor: sysfs: %s",input_sysfs_path);
 }
 
-AccelSensor::~AccelSensor() {
+OrientationSensor::~OrientationSensor() {
 
-  //  ALOGD("AccelSensor::~AccelSensor()");
+ //   ALOGD("OrientationSensor::~OrientationSensor()");
     if (mEnabled) {
         enable(0, 0);
     }
 }
 
 
-
-int AccelSensor::enable(int32_t, int en) {
+int OrientationSensor::enable(int32_t, int en) {
 
 	   
-  //  ALOGD("AccelSensor::~enable(0, %d)", en);
+ //   ALOGD("OrientationSensor::~enable(0, %d)", en);
     int flags = en ? 1 : 0;
     if (flags != mEnabled) {
         int fd;
         strcpy(&input_sysfs_path[input_sysfs_path_len], "enable");
-       // ALOGD("AccelSensor::~enable(0, %d) open %s",en,  input_sysfs_path);
+        //ALOGD("OrientationSensor::~enable(0, %d) open %s",en,  input_sysfs_path);
         fd = open(input_sysfs_path, O_RDWR);
         if (fd >= 0) {
-           //  ALOGD("AccelSensor::~enable(0, %d) opened %s",en,  input_sysfs_path);
+            // ALOGD("OrientationSensor::~enable(0, %d) opened %s",en,  input_sysfs_path);
             char buf[2];
             int err;
             buf[1] = 0;
@@ -88,6 +87,12 @@ int AccelSensor::enable(int32_t, int en) {
             close(fd);
             mEnabled = flags;
             //setInitialState();
+
+            /* Since the migration to 3.0 kernel, orientationd doesn't poll
+             * the enabled state properly, so start it when it's enabled and
+             * stop it when we're done using it.
+             */
+            property_set(mEnabled ? "ctl.start" : "ctl.stop", "orientationd");
             return 0;
         }
         return -1;        
@@ -96,17 +101,17 @@ int AccelSensor::enable(int32_t, int en) {
 }
 
 
-bool AccelSensor::hasPendingEvents() const {
+bool OrientationSensor::hasPendingEvents() const {
     /* FIXME probably here should be returning mEnabled but instead
 	mHasPendingEvents. It does not work, so we cheat.*/
-    //ALOGD("AccelSensor::~hasPendingEvents %d", mHasPendingEvent ? 1 : 0 );
+    //ALOGD("OrientationSensor::~hasPendingEvents %d", mHasPendingEvent ? 1 : 0 );
     return mHasPendingEvent;
 }
 
 
-int AccelSensor::setDelay(int32_t handle, int64_t ns)
+int OrientationSensor::setDelay(int32_t handle, int64_t ns)
 {
-  //  ALOGD("AccelSensor::~setDelay(%d, %lld)", handle, ns);
+    //ALOGD("OrientationSensor::~setDelay(%d, %lld)", handle, ns);
 
     int fd;
 
@@ -114,7 +119,7 @@ int AccelSensor::setDelay(int32_t handle, int64_t ns)
         ns = 10000000; // Minimum on stock
     }
 
-    strcpy(&input_sysfs_path[input_sysfs_path_len], "poll_delay");
+    strcpy(&input_sysfs_path[input_sysfs_path_len], "delay");
     fd = open(input_sysfs_path, O_RDWR);
     if (fd >= 0) {
         char buf[80];
@@ -127,9 +132,9 @@ int AccelSensor::setDelay(int32_t handle, int64_t ns)
 }
 
 
-int AccelSensor::readEvents(sensors_event_t* data, int count)
+int OrientationSensor::readEvents(sensors_event_t* data, int count)
 {
-    //ALOGD("AccelSensor::~readEvents() %d", count);
+    //ALOGD("OrientationSensor::~readEvents() %d", count);
     if (count < 1)
         return -EINVAL;
         
@@ -151,12 +156,13 @@ int AccelSensor::readEvents(sensors_event_t* data, int count)
         int type = event->type;
         if (type == EV_ABS) {
             float value = event->value;
-            if (event->code == EVENT_TYPE_ACCEL_X) {
-                mPendingEvent.acceleration.x = value * CONVERT_A_X;
-            } else if (event->code == EVENT_TYPE_ACCEL_Y) {
-                mPendingEvent.acceleration.y = value * CONVERT_A_Y;
-            } else if (event->code == EVENT_TYPE_ACCEL_Z) {
-                mPendingEvent.acceleration.z = value * CONVERT_A_Z;
+	    //ALOGD("OrientationSensor: event->code = %i",event->code);
+            if (event->code == EVENT_TYPE_YAW) {
+                mPendingEvent.orientation.azimuth = value * CONVERT_O_A;
+            } else if (event->code == EVENT_TYPE_PITCH) {
+                mPendingEvent.orientation.pitch = value * CONVERT_O_P;
+            } else if (event->code == EVENT_TYPE_ROLL) {
+                mPendingEvent.orientation.roll = value * CONVERT_O_R;
             }
         } else if (type == EV_SYN) {
             mPendingEvent.timestamp = timevalToNano(event->time);
@@ -166,11 +172,13 @@ int AccelSensor::readEvents(sensors_event_t* data, int count)
                 numEventReceived++;
             }
         } else {
-            ALOGE("AccelSensor: unknown event (type=%d, code=%d)",
+            ALOGE("OrientationSensor: unknown event (type=%d, code=%d)",
                     type, event->code);
         }
         mInputReader.next();
     }
+ 
+	//ALOGD("OrientationSensor::~readEvents() numEventReceived = %d", numEventReceived);
 	return numEventReceived++;
 		
 }

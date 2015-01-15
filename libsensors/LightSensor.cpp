@@ -21,14 +21,9 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/select.h>
-
-#include <utils/Log.h>
+#include <cutils/log.h>
 
 #include "LightSensor.h"
-
-#define LOGTAG "LightSensor"
-
-// #define ALOG_NDEBUG 0
 
 /*****************************************************************************/
 
@@ -48,30 +43,21 @@ LightSensor::LightSensor()
         strcat(input_sysfs_path, input_name);
         strcat(input_sysfs_path, "/device/");
         input_sysfs_path_len = strlen(input_sysfs_path);
+        enable(0, 1);
     }
+   // ALOGE("LightSensor: sysfs: %s",input_sysfs_path);
 }
 
 LightSensor::~LightSensor() {
-     if (mEnabled) {
+    if (mEnabled) {
         enable(0, 0);
     }
-}
-
-int LightSensor::setInitialState() {
-    struct input_absinfo absinfo;
-    if (!ioctl(data_fd, EVIOCGABS(EVENT_TYPE_LIGHT), &absinfo)) {
-        // make sure to report an event immediately
-        mHasPendingEvent = true;
-        mPendingEvent.light = absinfo.value;
-    }
-    return 0;
 }
 
 int LightSensor::setDelay(int32_t handle, int64_t ns)
 {
     int fd;
-
-    strcpy(&input_sysfs_path[input_sysfs_path_len], "light_poll_delay");
+    strcpy(&input_sysfs_path[input_sysfs_path_len], "poll_delay");
     fd = open(input_sysfs_path, O_RDWR);
     if (fd >= 0) {
         char buf[80];
@@ -85,16 +71,26 @@ int LightSensor::setDelay(int32_t handle, int64_t ns)
 
 int LightSensor::enable(int32_t handle, int en)
 {
-    int err;
-    if (en != mEnabled) {
-         err = sspEnable(LOGTAG, SSP_LIGHT, en);
-         if(err >= 0){
-              mEnabled = en;
-              setInitialState();
-
-              return 0;
-         }
-         return -1;
+    int flags = en ? 1 : 0;
+    if (flags != mEnabled) {
+        int fd;
+        strcpy(&input_sysfs_path[input_sysfs_path_len], "enable");
+        fd = open(input_sysfs_path, O_RDWR);
+        if (fd >= 0) {
+            char buf[2];
+            int err;
+            buf[1] = 0;
+            if (flags) {
+                buf[0] = '1';
+            } else {
+                buf[0] = '0';
+            }
+            err = write(fd, buf, sizeof(buf));
+            close(fd);
+            mEnabled = flags;
+            return 0;
+        }
+        return -1;
     }
     return 0;
 }
@@ -125,9 +121,10 @@ int LightSensor::readEvents(sensors_event_t* data, int count)
     while (count && mInputReader.readEvent(&event)) {
         int type = event->type;
         if (type == EV_REL) {
-             if (event->code == EVENT_TYPE_LIGHT) {
-                    mPendingEvent.light = event->value;
-            }
+                if(event->value < 0)
+		   mPendingEvent.light = 0;
+		else
+                   mPendingEvent.light = event->value;
         } else if (type == EV_SYN) {
             mPendingEvent.timestamp = timevalToNano(event->time);
             if (mEnabled) {
@@ -136,7 +133,7 @@ int LightSensor::readEvents(sensors_event_t* data, int count)
                 numEventReceived++;
             }
         } else {
-            ALOGE("%s: unknown event (type=%d, code=%d)", LOGTAG,
+            ALOGE("LightSensor: unknown event (type=%d, code=%d)",
                     type, event->code);
         }
         mInputReader.next();

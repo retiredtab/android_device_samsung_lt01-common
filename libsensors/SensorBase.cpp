@@ -22,7 +22,7 @@
 #include <dirent.h>
 #include <sys/select.h>
 
-#include <utils/Log.h>
+#include <cutils/log.h>
 
 #include <linux/input.h>
 
@@ -38,11 +38,6 @@ SensorBase::SensorBase(
 {
     if (data_name) {
         data_fd = openInput(data_name);
-    }
-
-    if (!data_fd)
-    {
-        ALOGE("open device %s failed", dev_name);
     }
 }
 
@@ -129,59 +124,5 @@ int SensorBase::openInput(const char* inputName) {
     }
     closedir(dir);
     ALOGE_IF(fd<0, "couldn't find '%s' input device", inputName);
-
     return fd;
-}
-
-int SensorBase::batch(int handle, int flags, int64_t period_ns, int64_t timeout)
-{
-    return 0;
-}
-
-int SensorBase::flush(int handle)
-{
-    return 0;
-}
-
-int SensorBase::sspEnable(const char* sensorname, int sensorvalue, int en)
-{
-    FILE* sspfile;
-    int oldvalue = 0;
-    int reset = 0;
-    int newvalue;
-    int fd;
-
-    sspfile = fopen(SSP_DEVICE_ENABLE, "r");
-    fscanf(sspfile, "%d", &oldvalue);
-    fclose(sspfile);
-
-    if(en) {
-        newvalue = oldvalue | sensorvalue;
-    } else {
-        newvalue = oldvalue & (~sensorvalue);
-    }
-    ALOGI("%s: name: %s sensor: %i old value: %x  new value: %x ", __func__, sensorname, sensorvalue, oldvalue, newvalue);
-    if (sspWrite(newvalue))
-	return -1;
-    else
-        return 0;
-}
-
-int SensorBase::sspWrite(int sensorvalue)
-{
-    char buf[10];
-    int fd, ret, err;
-
-    sprintf(buf, "%d", sensorvalue);
-    fd = open(SSP_DEVICE_ENABLE, O_RDWR);
-    if (fd >= 0) {
-        err = write(fd, buf, sizeof(buf));
-	ret = 0;
-    } else {
-        ALOGI("%s: error writing to file", __func__);
-	ret = -1;
-    }
-    
-    close(fd);
-    return ret;
 }
