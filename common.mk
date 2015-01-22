@@ -43,8 +43,7 @@ PRODUCT_COPY_FILES := \
 
 # Camera
 PRODUCT_PACKAGES += \
-    camera.smdk4x12 \
-	libcameraservice
+    camera.smdk4x12
 
 # IRDA
 PRODUCT_PACKAGES += \
