@@ -32,9 +32,15 @@ TARGET_USERIMAGES_USE_F2FS := true
 # exFAT kernel support
 KERNEL_EXFAT_MODULE_NAME := "exfat"
 
+# Exynos4x12 Tablet
+BOARD_EXYNOS4X12_TABLET := true
+
 # Graphics
 TARGET_RUNNING_WITHOUT_SYNC_FRAMEWORK := false
 BOARD_USE_SYSFS_VSYNC_NOTIFICATION := false
+
+# Camera
+BOARD_USES_PROPRIETARY_LIBCAMERA := true
 
 # Recovery
 BOARD_UMS_LUNFILE := "/sys/class/android_usb/android0/f_mass_storage/lun/file"
@@ -42,9 +48,6 @@ BOARD_RECOVERY_SWIPE := true
 
 # Sensors
 BOARD_USE_LEGACY_SENSORS_FUSION := false
-
-# Legacy driver compatibility
- COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
 
 # Button backlight
 BOARD_EXYNOS4X12_TABLET_HAS_LED_BUTTONS := true
@@ -80,7 +83,7 @@ BOARD_SEPOLICY_UNION += \
     ueventd.te \
     vold.te \
     wpa_supplicant.te
-    
+
 # TWRP Recovery
 DEVICE_RESOLUTION := 800x1280
 RECOVERY_SDCARD_ON_DATA := true
@@ -104,3 +107,4 @@ TW_HAS_DOWNLOAD_MODE := true
 TW_NO_SCREEN_BLANK := true
 TW_NO_SCREEN_TIMEOUT := true
 HAVE_SELINUX := true
+
