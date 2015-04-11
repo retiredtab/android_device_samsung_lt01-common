@@ -1,4 +1,5 @@
 
+import init.target.rc
 import init.smdk4x12.usb.rc
 
 on early-init
