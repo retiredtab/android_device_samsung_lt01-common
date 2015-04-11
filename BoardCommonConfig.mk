@@ -18,6 +18,8 @@
 # by BoardConfigVendor.mk
 -include device/samsung/smdk4412-common/BoardCommonConfig.mk
 
+TARGET_SPECIFIC_HEADER_PATH := device/samsung/lt01-common/include
+
 # Kernel
 BOARD_KERNEL_BASE := 0x10000000
 BOARD_KERNEL_CMDLINE := console=ttySAC2,115200 androidboot.selinux=permissive
