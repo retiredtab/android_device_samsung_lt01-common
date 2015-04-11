@@ -1,0 +1,9 @@
+# macloader
+type macloader, domain;
+type macloader_exec, exec_type, file_type;
+
+init_daemon_domain(macloader)
+
+allow macloader wifi_data_file:file { r_file_perms };
+allow macloader system_data_file:file { create_file_perms };
+allow macloader self:capability { chown fowner };

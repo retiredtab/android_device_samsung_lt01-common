@@ -1,1 +1,2 @@
 allow init wpa_socket:unix_dgram_socket { bind create };
+allow init self:tcp_socket { create_socket_perms name_connect };

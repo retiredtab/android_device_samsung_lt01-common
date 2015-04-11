@@ -68,20 +68,29 @@ BOARD_SEPOLICY_DIRS += \
     device/samsung/lt01-common/selinux
 
 BOARD_SEPOLICY_UNION += \
+    cbd.te \
     file_contexts \
     te_macros \
     device.te \
     dhcp.te \
     domain.te \
     file.te \
+    geomagneticd.te \
+    gpsd.te \
     init.te \
     kickstart.te \
+    macloader.te \
     mediaserver.te \
+    netd.te \
     netmgrd.te \
+    orientationd.te \
     qmux.te \
     rild.te \
     secril.te \
+    sysinit.te \
     system.te \
+    tinyplay.te \
+    tvoutservice.te \
     ueventd.te \
     vold.te \
     wpa_supplicant.te

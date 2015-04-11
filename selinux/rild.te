@@ -5,6 +5,12 @@ allow rild efs_block_device:blk_file rw_file_perms;
 allow rild self:netlink_socket { create bind read write };
 allow rild self:netlink_route_socket { write };
 allow rild self:netlink_kobject_uevent_socket { create bind read write setopt };
+allow rild init:file { r_file_perms };
+allow rild init:dir { r_dir_perms };
+allow rild block_device:dir { r_dir_perms };
+allow rild gpsd:file { r_file_perms };
+allow rild gpsd:dir { r_dir_perms };
+allow rild proc_net:file { rw_file_perms };
 
 # Talk to qmuxd
 qmux_socket(rild)

@@ -34,6 +34,7 @@
 # Wifi
 /dev/rfkill                             u:object_r:rfkill_device:s0
 /efs/wifi/.mac.info                     u:object_r:wifi_data_file:s0
+.mac.info                               u:object_r:wifi_data_file:s0
 
 # Firmwares
 /system/vendor/firmware(/.*)?           u:object_r:firmware_camera:s0
@@ -51,28 +52,41 @@
 /efs/FactoryApp/keystr                  u:object_r:efs_file:s0
 /efs/FactoryApp/factorymode             u:object_r:efs_file:s0
 /efs/FactoryApp/serial_no               u:object_r:efs_file:s0
+/efs/nv_data.bin                        u:object_r:efs_file:s0
+/efs/nv_data.bin.md5                    u:object_r:efs_file:s0
+/efs/.nv_state                          u:object_r:efs_file:s0
+nv_data.bin                             u:object_r:efs_file:s0
+nv_data.bin.md5                         u:object_r:efs_file:s0
+.nv_state                               u:object_r:efs_file:s0
 /data/misc/radio/ramdumpmode.txt        u:object_r:radio_data_file:s0
 /data/misc/radio/dlnk                   u:object_r:radio_data_file:s0
 
 # Binaries
-/system/bin/qmuxd                u:object_r:qmux_exec:s0
-/system/bin/netmgrd              u:object_r:netmgrd_exec:s0
-/system/bin/efsks                u:object_r:kickstart_exec:s0
-/system/bin/ks                   u:object_r:kickstart_exec:s0
-/system/bin/qcks                 u:object_r:kickstart_exec:s0
-/system/bin/sec-ril              u:object_r:secril-daemon_exec:s0
+/sbin/cbd                               u:object_r:cbd_exec:s0
+/system/bin/bintvoutservice             u:object_r:bintvoutservice_exec:s0
+/system/bin/efsks                       u:object_r:kickstart_exec:s0
+/system/bin/geomagneticd                u:object_r:geomagneticd_exec:s0
+/system/bin/gpsd                        u:object_r:gpsd_exec:s0
+/system/bin/ks                          u:object_r:kickstart_exec:s0
+/system/bin/macloader                   u:object_r:macloader_exec:s0
+/system/bin/netmgrd                     u:object_r:netmgrd_exec:s0
+/system/bin/orientationd                u:object_r:orientationd_exec:s0
+/system/bin/qcks                        u:object_r:kickstart_exec:s0
+/system/bin/qmuxd                       u:object_r:qmux_exec:s0
+/system/bin/sec-ril                     u:object_r:secril-daemon_exec:s0
+/system/bin/tinyplay                    u:object_r:tinyplay_exec:s0
 
 # Sockets
-/dev/socket/qmux_audio(/.*)?     u:object_r:qmuxd_socket:s0
-/dev/socket/qmux_bluetooth(/.*)? u:object_r:qmuxd_socket:s0
-/dev/socket/qmux_gps(/.*)?       u:object_r:qmuxd_socket:s0
-/dev/socket/qmux_radio(/.*)?     u:object_r:qmuxd_socket:s0
+/dev/socket/qmux_audio(/.*)?            u:object_r:qmuxd_socket:s0
+/dev/socket/qmux_bluetooth(/.*)?        u:object_r:qmuxd_socket:s0
+/dev/socket/qmux_gps(/.*)?              u:object_r:qmuxd_socket:s0
+/dev/socket/qmux_radio(/.*)?            u:object_r:qmuxd_socket:s0
 
 # Block devices
-/dev/block/mmcblk0p[3-6]*       u:object_r:efs_block_device:s0
-/dev/block/mmcblk0p7            u:object_r:efs_block_device:s0
-/dev/block/mmcblk0p10           u:object_r:efs_block_device:s0
-/dev/block/mmcblk0p13           u:object_r:efs_block_device:s0
+/dev/block/mmcblk0p[3-6]*               u:object_r:efs_block_device:s0
+/dev/block/mmcblk0p7                    u:object_r:efs_block_device:s0
+/dev/block/mmcblk0p10                   u:object_r:efs_block_device:s0
+/dev/block/mmcblk0p13                   u:object_r:efs_block_device:s0
 
 # Audio related
-/data/local/audio(/.*)?         u:object_r:volume_data_file:s0
+/data/local/audio(/.*)?                 u:object_r:volume_data_file:s0
