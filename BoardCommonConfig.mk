@@ -65,7 +65,9 @@ BOARD_SEPOLICY_DIRS += \
     device/samsung/lt01-common/selinux
 
 BOARD_SEPOLICY_UNION += \
+    at_distributor.te \
     cbd.te \
+    diag_uart_log.te \
     file_contexts \
     te_macros \
     device.te \
@@ -81,6 +83,7 @@ BOARD_SEPOLICY_UNION += \
     netd.te \
     netmgrd.te \
     orientationd.te \
+    qmiproxy.te \
     qmux.te \
     rild.te \
     secril.te \
@@ -91,4 +94,3 @@ BOARD_SEPOLICY_UNION += \
     ueventd.te \
     vold.te \
     wpa_supplicant.te
-

@@ -19,3 +19,4 @@ allow qmux self:capability { dac_override setuid };
 
 # XXX Should we label with own type
 allow qmux sysfs:file { open write append read getattr };
+allow qmux sysfs_wake_lock:file { rw_file_perms };
