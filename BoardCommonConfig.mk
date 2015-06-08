@@ -94,3 +94,7 @@ BOARD_SEPOLICY_UNION += \
     ueventd.te \
     vold.te \
     wpa_supplicant.te
+
+# Charging mode
+BOARD_CHARGING_CMDLINE_NAME := lpcharge
+BOARD_CHARGING_CMDLINE_VALUE := 1

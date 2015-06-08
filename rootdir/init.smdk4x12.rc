@@ -626,9 +626,9 @@ service geomagneticd /system/bin/geomagneticd
 
 # TVout
 service TvoutService_C /system/bin/bintvoutservice
-     class main
-     user system
-     group graphics
+    class main
+    user system
+    group graphics
 
 on property:ro.tvout.enable=false
     stop TvoutService_C
@@ -655,6 +655,17 @@ on property:init.svc.macloader=stopped
     chmod 0664 /data/.cid.info
     chown system root /data/.rev
     chmod 0660 /data/.rev
+
+service charger /charger
+    class charger
+    user root
+
+on charger
+    mount ext4 /dev/block/platform/dw_mmc/by-name/SYSTEM /system ro wait noatime
+    # CPU Frequency Governor
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor powersave
+    # EHCI runtime enable for LPA
+    write /sys/devices/platform/s5p-ehci/power/control auto
 
 # Workaround for broken incall audio
 service bootsnd /system/bin/tinyplay /system/etc/sound/silence.wav -D 0 -d 0 -p 880
