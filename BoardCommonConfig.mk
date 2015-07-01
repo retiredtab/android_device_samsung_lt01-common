@@ -46,7 +46,6 @@ BOARD_USES_PROPRIETARY_LIBCAMERA := true
 
 # Recovery
 BOARD_UMS_LUNFILE := "/sys/class/android_usb/android0/f_mass_storage/lun/file"
-BOARD_RECOVERY_SWIPE := true
 
 # Sensors
 BOARD_USE_LEGACY_SENSORS_FUSION := false
@@ -56,9 +55,6 @@ BOARD_EXYNOS4X12_TABLET_HAS_LED_BUTTONS := true
 
 # Skip droiddoc build to save build time
 BOARD_SKIP_ANDROID_DOC_BUILD := true
-
-# inherit from the proprietary version
--include vendor/samsung/lt01-common/BoardConfigVendor.mk
 
 # Selinux
 BOARD_SEPOLICY_DIRS += \
@@ -98,3 +94,6 @@ BOARD_SEPOLICY_UNION += \
 # Charging mode
 BOARD_CHARGING_CMDLINE_NAME := lpcharge
 BOARD_CHARGING_CMDLINE_VALUE := 1
+
+# inherit from the proprietary version
+-include vendor/samsung/lt01-common/BoardConfigVendor.mk
