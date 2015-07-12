@@ -1,4 +1,4 @@
-type radio_efs_file, fs_type;
+type radio_efs_file, fs_type, contextmount_type;
 
 type firmware_mfc, file_type;
 type firmware_camera, file_type;
