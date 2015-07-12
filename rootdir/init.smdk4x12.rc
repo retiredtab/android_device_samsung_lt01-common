@@ -143,7 +143,7 @@ on post-fs-data
     rm /data/app/tlcd_sock
 
 on boot
-    mount debugfs /sys/kernel/debug /sys/kernel/debug
+    mount debugfs none /sys/kernel/debug
 
     # Camera
     mkdir /data/cfw 0775 system system
