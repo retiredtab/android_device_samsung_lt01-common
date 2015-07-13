@@ -1,4 +1,3 @@
-
 import init.target.rc
 import init.smdk4x12.usb.rc
 
@@ -36,111 +35,6 @@ on init
     # ko files for exfat
     # insmod /lib/modules/exfat_core.ko
     # insmod /lib/modules/exfat_fs.ko
-
-on post-fs-data
-    # we will remap this as /mnt/sdcard with the sdcard fuse tool
-    mkdir /data/media 0770 media_rw media_rw
-    chown media_rw media_rw /data/media
-    # Set indication (checked by vold) that we have finished this action
-    setprop vold.post_fs_data_done 1
-
-    # give system access to wpa_supplicant.conf for backup and restore
-    mkdir /data/misc/wifi 0770 wifi system
-    mkdir /efs/wifi 0775 radio system
-    mkdir /efs/bluetooth 0775 radio system
-    mkdir /efs/imei 0775 radio system
-    chmod 0660 /data/misc/wifi/wpa_supplicant.conf
-    mkdir /data/misc/wifi/sockets 0770 wifi wifi
-    mkdir /data/misc/dhcp 0775 dhcp dhcp
-    chown dhcp dhcp /data/misc/dhcp
-    chown system system /efs/wifi/.mac.info
-    chmod 0664 /efs/wifi/.mac.info
-
-    # permissions for bluetooth.
-    setprop ro.bt.bdaddr_path "/efs/bluetooth/bt_addr"
-    chown bluetooth net_bt_stack ro.bt.bdaddr_path
-    chown bluetooth net_bt_stack /dev/ttySAC0
-    chmod 0660 /dev/ttySAC0
-    chmod 0660 /sys/class/rfkill/rfkill0/state
-    chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/state
-    chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/type
-    restorecon /sys/class/rfkill/rfkill0/state
-    restorecon /sys/class/rfkill/rfkill0/type
-
-    # for TRP/TIS
-    write /data/.psm.info 1
-    chown system root /data/.psm.info
-    chmod 0660 /data/.psm.info
-
-    # for AT distributor
-    chown system radio /sys/module/cpuidle_exynos4/parameters/enable_mask
-    chmod 0664 /sys/module/cpuidle_exynos4/parameters/enable_mask
-
-    # Create log directory
-    mkdir /data/log 0775 system log
-    chown system log /data/log
-    chmod 0775 /data/log
-    chmod 0775 /data/anr
-
-    # DRM directory creation
-    mkdir /system/etc/security/.drm 0775
-    chown root root /system/etc/security/.drm
-    chmod 0775 /system/etc/security/.drm
-
-    # Added for Playready DRM Support
-    mkdir /data/data/.drm 0775
-    chown drm system /data/data/.drm
-    chmod 0775 /data/data/.drm
-    mkdir /data/data/.drm/.playready 0775
-    chown drm system /data/data/.drm/.playready
-    chmod 0775 /data/data/.drm/.playready
-
-    # TZPR 1
-    mkdir /system/etc/security/.drm/ext1 0775
-    chown root root /system/etc/security/.drm/ext1
-    chmod 0775 /system/etc/security/.drm/ext1
-
-    # TZPR 2
-    mkdir /efs/drm 0775
-    chown drm system /efs/drm
-    chmod 0775 /efs/drm
-    mkdir /efs/drm/playready 0775
-    chown drm system /efs/drm/playready
-    chmod 0775 /efs/drm/playready
-
-    # Added drm folder to copy drm plugins
-    mkdir /system/lib/drm 0775
-    chown root root /system/lib/drm
-    chmod 0775 /system/lib/drm
-
-    # DivX DRM
-    mkdir /efs/.files 0775
-    mkdir /efs/.files/.dx1 0775
-    mkdir /efs/.files/.dm33 0775
-    mkdir /efs/.files/.mp301 0775
-    chown media system /efs/.files/.dx1
-    chown media system /efs/.files/.dm33
-    chown media system /efs/.files/.mp301
-    chmod 0775 /efs/.files/.dx1
-    chmod 0775 /efs/.files/.dm33
-    chmod 0775 /efs/.files/.mp301
-
-    # MTP permission
-    chmod 0660 /dev/usb_mtp_gadget
-    chown system system /dev/usb_mtp_gadget
-
-    # terminal mode
-    chmod 0660 /sys/class/android_usb/android0/terminal_version
-    chown system system /sys/class/android_usb/android0/terminal_version
-
-    # sua version info
-    chmod 0660 /sys/class/android_usb/android0/f_mass_storage/sua_version_info
-    chown system system /sys/class/android_usb/android0/f_mass_storage/sua_version_info
-
-    # Set permission for Widevine DRM temporarily
-    chmod 0644 /factory/wv.keys
-    chmod 0755 /data/app/wv_test
-    rm /data/app/tlcd_sock
 
 on boot
     mount debugfs none /sys/kernel/debug
@@ -458,18 +352,6 @@ on boot
     chmod 0644 /efs/h2k.dat
     mkdir /data/misc/radio/hatp 0775 radio system
 
-# icd
-service icd /system/bin/icd
-    class main
-    user system
-    group system log
-    onrestart exec icd_check
-    oneshot
-
-on property:init.svc.media=restarting
-    exec icd_check
-    start icd
-
 on fs
     mount_all fstab.smdk4x12
 
@@ -532,6 +414,123 @@ on fs
 
     #lowmem reserve ratio
     write /proc/sys/vm/lowmem_reserve_ratio 54 54
+
+on post-fs-data
+    # we will remap this as /mnt/sdcard with the sdcard fuse tool
+    mkdir /data/media 0770 media_rw media_rw
+    chown media_rw media_rw /data/media
+    # Set indication (checked by vold) that we have finished this action
+    setprop vold.post_fs_data_done 1
+
+    # give system access to wpa_supplicant.conf for backup and restore
+    mkdir /data/misc/wifi 0770 wifi system
+    mkdir /efs/wifi 0775 radio system
+    mkdir /efs/bluetooth 0775 radio system
+    mkdir /efs/imei 0775 radio system
+    chmod 0660 /data/misc/wifi/wpa_supplicant.conf
+    mkdir /data/misc/wifi/sockets 0770 wifi wifi
+    mkdir /data/misc/dhcp 0775 dhcp dhcp
+    chown dhcp dhcp /data/misc/dhcp
+    chown system system /efs/wifi/.mac.info
+    chmod 0664 /efs/wifi/.mac.info
+
+    # permissions for bluetooth.
+    setprop ro.bt.bdaddr_path "/efs/bluetooth/bt_addr"
+    chown bluetooth net_bt_stack ro.bt.bdaddr_path
+    chown bluetooth net_bt_stack /dev/ttySAC0
+    chmod 0660 /dev/ttySAC0
+    chmod 0660 /sys/class/rfkill/rfkill0/state
+    chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/state
+    chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/type
+    restorecon /sys/class/rfkill/rfkill0/state
+    restorecon /sys/class/rfkill/rfkill0/type
+
+    # for TRP/TIS
+    write /data/.psm.info 1
+    chown system root /data/.psm.info
+    chmod 0660 /data/.psm.info
+
+    # for AT distributor
+    chown system radio /sys/module/cpuidle_exynos4/parameters/enable_mask
+    chmod 0664 /sys/module/cpuidle_exynos4/parameters/enable_mask
+
+    # Create log directory
+    mkdir /data/log 0775 system log
+    chown system log /data/log
+    chmod 0775 /data/log
+    chmod 0775 /data/anr
+
+    # DRM directory creation
+    mkdir /system/etc/security/.drm 0775
+    chown root root /system/etc/security/.drm
+    chmod 0775 /system/etc/security/.drm
+
+    # Added for Playready DRM Support
+    mkdir /data/data/.drm 0775
+    chown drm system /data/data/.drm
+    chmod 0775 /data/data/.drm
+    mkdir /data/data/.drm/.playready 0775
+    chown drm system /data/data/.drm/.playready
+    chmod 0775 /data/data/.drm/.playready
+
+    # TZPR 1
+    mkdir /system/etc/security/.drm/ext1 0775
+    chown root root /system/etc/security/.drm/ext1
+    chmod 0775 /system/etc/security/.drm/ext1
+
+    # TZPR 2
+    mkdir /efs/drm 0775
+    chown drm system /efs/drm
+    chmod 0775 /efs/drm
+    mkdir /efs/drm/playready 0775
+    chown drm system /efs/drm/playready
+    chmod 0775 /efs/drm/playready
+
+    # Added drm folder to copy drm plugins
+    mkdir /system/lib/drm 0775
+    chown root root /system/lib/drm
+    chmod 0775 /system/lib/drm
+
+    # DivX DRM
+    mkdir /efs/.files 0775
+    mkdir /efs/.files/.dx1 0775
+    mkdir /efs/.files/.dm33 0775
+    mkdir /efs/.files/.mp301 0775
+    chown media system /efs/.files/.dx1
+    chown media system /efs/.files/.dm33
+    chown media system /efs/.files/.mp301
+    chmod 0775 /efs/.files/.dx1
+    chmod 0775 /efs/.files/.dm33
+    chmod 0775 /efs/.files/.mp301
+
+    # MTP permission
+    chmod 0660 /dev/usb_mtp_gadget
+    chown system system /dev/usb_mtp_gadget
+
+    # terminal mode
+    chmod 0660 /sys/class/android_usb/android0/terminal_version
+    chown system system /sys/class/android_usb/android0/terminal_version
+
+    # sua version info
+    chmod 0660 /sys/class/android_usb/android0/f_mass_storage/sua_version_info
+    chown system system /sys/class/android_usb/android0/f_mass_storage/sua_version_info
+
+    # Set permission for Widevine DRM temporarily
+    chmod 0644 /factory/wv.keys
+    chmod 0755 /data/app/wv_test
+    rm /data/app/tlcd_sock
+
+# icd
+service icd /system/bin/icd
+    class main
+    user system
+    group system log
+    onrestart exec icd_check
+    oneshot
+
+on property:init.svc.media=restarting
+    exec icd_check
+    start icd
 
 # create virtual SD card at /mnt/sdcard, based on the /data/media directory
 # daemon will drop to user/group system/media_rw after initializing
