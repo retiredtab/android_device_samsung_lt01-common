@@ -523,6 +523,9 @@ on post-fs-data
     chmod 0755 /data/app/wv_test
     rm /data/app/tlcd_sock
 
+on property:sys.boot_completed=1
+    write /sys/block/mmcblk0/queue/scheduler cfq
+
 # icd
 service icd /system/bin/icd
     class main
