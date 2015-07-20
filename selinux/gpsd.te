@@ -1,5 +1,8 @@
+binder_call(gpsd, system_server)
+binder_call(gpsd, servicemanager)
+unix_socket_connect(gpsd, gps, rild)
+
 allow gpsd sysfs_wake_lock:file { rw_file_perms };
 allow gpsd system_data_file:file { rw_file_perms };
 allow gpsd system_data_file:fifo_file { create_file_perms };
-allow gpsd rild:unix_stream_socket { connectto };
-allow gpsd servicemanager:binder { call };
+allow gpsd system_server:unix_stream_socket { rw_socket_perms };

@@ -80,9 +80,10 @@ BOARD_SEPOLICY_UNION += \
     netmgrd.te \
     orientationd.te \
     qmiproxy.te \
-    qmux.te \
+    qmuxd.te \
     rild.te \
     secril.te \
+    servicemanager.te \
     sysinit.te \
     system.te \
     tinyplay.te \

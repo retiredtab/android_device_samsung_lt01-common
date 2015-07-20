@@ -99,3 +99,6 @@
 # Video devices
 /dev/s3c-mfc                            u:object_r:video_device:s0
 
+# mdnie
+/sys/class/mdnie/mdnie/scenario         u:object_r:system_data_file:s0
+/sys/class/mdnie/mdnie/mode             u:object_r:system_data_file:s0
