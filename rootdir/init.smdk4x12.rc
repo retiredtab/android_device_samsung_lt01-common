@@ -37,13 +37,15 @@ on init
     # insmod /lib/modules/exfat_fs.ko
 
 on boot
+    loglevel 7
     mount debugfs none /sys/kernel/debug
+
+    setprop ro.build.product smdk4x12
+    setprop ro.product.device smdk4x12
 
     # Camera
     mkdir /data/cfw 0775 system system
 
-    setprop ro.build.product smdk4x12
-    setprop ro.product.device smdk4x12
     # WIFI
     setprop wifi.interface wlan0
 
@@ -415,7 +417,6 @@ on post-fs-data
 
     # restore selinux label on certain partitions
     restorecon_recursive /efs
-    restorecon_recursive /tombstones
 
     # give system access to wpa_supplicant.conf for backup and restore
     mkdir /data/misc/wifi 0770 wifi system
@@ -514,6 +515,9 @@ on post-fs-data
     chmod 0644 /factory/wv.keys
     chmod 0755 /data/app/wv_test
     rm /data/app/tlcd_sock
+
+    # mDNIe
+    restorecon_recursive /sys/class/mdnie/mdnie
 
 on property:sys.boot_completed=1
     write /sys/block/mmcblk0/queue/scheduler cfq
@@ -641,6 +645,7 @@ service TvoutService_C /system/bin/bintvoutservice
     class main
     user system
     group graphics
+    disabled
 
 on property:ro.tvout.enable=false
     stop TvoutService_C
