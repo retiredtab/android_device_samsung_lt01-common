@@ -24,6 +24,9 @@ TARGET_SPECIFIC_HEADER_PATH := device/samsung/lt01-common/include
 BOARD_KERNEL_BASE := 0x10000000
 BOARD_KERNEL_CMDLINE := console=ttySAC2,115200 androidboot.selinux=permissive
 
+# Use dlmalloc instead of jemalloc for mallocs
+MALLOC_IMPL := dlmalloc
+
 # Filesystem
 BOARD_SYSTEMIMAGE_PARTITION_SIZE := 2235564032
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 12813598720
