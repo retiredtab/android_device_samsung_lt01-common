@@ -65,6 +65,7 @@ BOARD_SEPOLICY_UNION += \
     cbd.te \
     diag_uart_log.te \
     file_contexts \
+    healthd.te \
     te_macros \
     device.te \
     dhcp.te \
@@ -73,6 +74,7 @@ BOARD_SEPOLICY_UNION += \
     geomagneticd.te \
     gpsd.te \
     init.te \
+    kernel.te \
     kickstart.te \
     macloader.te \
     mediaserver.te \
