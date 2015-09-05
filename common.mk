@@ -73,6 +73,12 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.cm.hardware.cabc=/sys/class/mdnie/mdnie/cabc \
     ro.hwui.disable_scissor_opt=true
 
+# ART
+PRODUCT_PROPERTY_OVERRIDES += \
+    dalvik.vm.dex2oat-filter=balanced \
+    dalvik.vm.dex2oat-flags=--no-watch-dog \
+    dalvik.vm.image-dex2oat-filter=speed
+
 # Media profiles
 PRODUCT_COPY_FILES += \
     $(COMMON_PATH)/configs/media_profiles.xml:system/etc/media_profiles.xml \
