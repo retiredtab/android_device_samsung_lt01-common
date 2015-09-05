@@ -86,6 +86,8 @@ BOARD_SEPOLICY_UNION += \
     servicemanager.te \
     sysinit.te \
     system.te \
+    system_app.te \
+    system_server.te \
     tinyplay.te \
     tvoutservice.te \
     ueventd.te \

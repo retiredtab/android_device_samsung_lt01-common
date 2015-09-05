@@ -516,7 +516,8 @@ on post-fs-data
     rm /data/app/tlcd_sock
 
     # mDNIe
-    restorecon_recursive /sys/class/mdnie/mdnie
+    restorecon /sys/class/mdnie/mdnie/scenario
+    restorecon /sys/class/mdnie/mdnie/mode
 
     # Set indication (checked by vold) that we have finished this action
     setprop vold.post_fs_data_done 1
