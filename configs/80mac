@@ -1,0 +1,10 @@
+#!/system/bin/sh
+#
+# Copy mac address to correct file to be read by macloader
+#
+
+MAC_ADDR_SRC=/efs/wifi/.mac.cob
+MAC_ADDR_TARGET=/efs/wifi/.mac.info
+[ -f $MAC_ADDR_SRC ] && {
+    busybox cat $MAC_ADDR_SRC > $MAC_ADDR_TARGET
+}
