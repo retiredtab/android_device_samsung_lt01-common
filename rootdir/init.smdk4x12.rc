@@ -2,6 +2,9 @@ import init.target.rc
 import init.smdk4x12.usb.rc
 
 on early-init
+    loglevel 7
+    mount debugfs none /sys/kernel/debug
+
     mkdir /efs 0771 radio system
 
 on init
@@ -37,9 +40,6 @@ on init
     # insmod /lib/modules/exfat_fs.ko
 
 on boot
-    loglevel 7
-    mount debugfs none /sys/kernel/debug
-
     setprop ro.build.product smdk4x12
     setprop ro.product.device smdk4x12
 
