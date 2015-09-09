@@ -81,7 +81,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # Media profiles
 PRODUCT_COPY_FILES += \
     $(COMMON_PATH)/configs/media_profiles.xml:system/etc/media_profiles.xml \
-    $(COMMON_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml
+    $(COMMON_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml \
+    $(COMMON_PATH)/configs/media_codecs_google_video_le.xml:system/etc/media_codecs_google_video_le.xml
 
 # These are the hardware-specific features
 PRODUCT_COPY_FILES += \
