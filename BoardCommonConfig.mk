@@ -99,5 +99,8 @@ BOARD_SEPOLICY_UNION += \
 BOARD_CHARGING_CMDLINE_NAME := lpcharge
 BOARD_CHARGING_CMDLINE_VALUE := 1
 
+# Properties
+TARGET_SYSTEM_PROP += device/samsung/lt01-common/system.prop
+
 # inherit from the proprietary version
 -include vendor/samsung/lt01-common/BoardConfigVendor.mk
