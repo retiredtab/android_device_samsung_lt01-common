@@ -86,7 +86,6 @@ BOARD_SEPOLICY_UNION += \
     secril.te \
     servicemanager.te \
     sysinit.te \
-    system.te \
     system_app.te \
     system_server.te \
     tinyplay.te \
