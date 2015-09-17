@@ -523,7 +523,7 @@ on post-fs-data
     setprop vold.post_fs_data_done 1
 
 on property:sys.boot_completed=1
-    setprop sys.io.scheduler cfq
+    setprop sys.io.scheduler bfq
 
 # Powersave
 on property:sys.perf.profile=0
