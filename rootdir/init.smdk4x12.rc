@@ -3,7 +3,7 @@ import init.smdk4x12.usb.rc
 
 on early-init
     loglevel 7
-    mount debugfs none /sys/kernel/debug
+    mount debugfs debugfs /sys/kernel/debug
 
     mkdir /efs 0771 radio system
 
@@ -36,6 +36,10 @@ on init
     # ko files for exfat
     # insmod /lib/modules/exfat_core.ko
     # insmod /lib/modules/exfat_fs.ko
+
+on early-boot
+    # Set RLIMIT_MEMLOCK to 64MB
+    setrlimit 8 67108864 67108864
 
 on boot
     setprop ro.build.product smdk4x12
