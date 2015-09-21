@@ -415,6 +415,11 @@ on fs
     write /proc/sys/vm/lowmem_reserve_ratio 54 54
 
 on post-fs-data
+    # properly create system data folder and permission
+    mkdir /data/system 0771 system system
+    chown system system /data/system
+    chmod 0771 /data/system
+
     # we will remap this as /mnt/sdcard with the sdcard fuse tool
     mkdir /data/media 0770 media_rw media_rw
 
