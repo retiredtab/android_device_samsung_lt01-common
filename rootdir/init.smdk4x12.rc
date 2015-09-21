@@ -2,12 +2,12 @@ import init.target.rc
 import init.smdk4x12.usb.rc
 
 on early-init
-    loglevel 7
+    mkdir /efs 0771 radio system
     mount debugfs debugfs /sys/kernel/debug
 
-    mkdir /efs 0771 radio system
-
 on init
+    loglevel 7
+
     mkdir /mnt/shell/emulated 0700 shell shell
     mkdir /storage/emulated 0555 root root
     mkdir /storage/sdcard1 0700 root root
