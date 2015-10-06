@@ -97,13 +97,6 @@ enum output_type {
     OUTPUT_TOTAL
 };
 
-enum tty_modes {
-    TTY_MODE_OFF,
-    TTY_MODE_VCO,
-    TTY_MODE_HCO,
-    TTY_MODE_FULL
-};
-
 struct mixer_ctls
 {
     struct mixer_ctl *mixinl_in1l_volume;
