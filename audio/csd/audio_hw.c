@@ -81,11 +81,11 @@ struct pcm_config pcm_config_vx = {
 
 #define MIN(x, y) ((x) > (y) ? (y) : (x))
 
-struct m0_audio_device {
+struct audio_device {
     struct audio_hw_device hw_device;
 
     pthread_mutex_t lock;       /* see note below on mutex acquisition order */
-    struct m0_dev_cfg *dev_cfgs;
+    struct audio_dev_cfg *dev_cfgs;
     int num_dev_cfgs;
     struct mixer *mixer;
     struct mixer_ctls mixer_ctls;
@@ -100,8 +100,8 @@ struct m0_audio_device {
     struct pcm *pcm_bt_ul;
     int in_call;
     float voice_volume;
-    struct m0_stream_in *active_input;
-    struct m0_stream_out *outputs[OUTPUT_TOTAL];
+    struct stream_in *active_input;
+    struct stream_out *outputs[OUTPUT_TOTAL];
     bool mic_mute;
     int tty_mode;
     struct echo_reference_itfe *echo_reference;
@@ -109,7 +109,7 @@ struct m0_audio_device {
     bool screen_off;
 };
 
-struct m0_stream_out {
+struct stream_out {
     struct audio_stream_out stream;
 
     pthread_mutex_t lock;       /* see note below on mutex acquisition order */
@@ -125,7 +125,7 @@ struct m0_stream_out {
     audio_channel_mask_t channel_mask;
     audio_channel_mask_t sup_channel_masks[3];
 
-    struct m0_audio_device *dev;
+    struct audio_device *dev;
 };
 
 #define MAX_PREPROCESSORS 3 /* maximum one AGC + one NS + one AEC per input stream */
@@ -142,7 +142,7 @@ channel_config_t in_aux_cnl_configs[NUM_IN_AUX_CNL_CONFIGS] = {
     { AUDIO_CHANNEL_IN_STEREO , AUDIO_CHANNEL_IN_RIGHT}
 };
 
-struct m0_stream_in {
+struct stream_in {
     struct audio_stream_in stream;
 
     pthread_mutex_t lock;       /* see note below on mutex acquisition order */
@@ -178,10 +178,10 @@ struct m0_stream_in {
     bool aux_channels_changed;
     uint32_t main_channels;
     uint32_t aux_channels;
-    struct m0_audio_device *dev;
+    struct audio_device *dev;
 };
 
-struct m0_dev_cfg {
+struct audio_dev_cfg {
     int mask;
 
     struct route_setting *on;
@@ -252,12 +252,12 @@ void setCsdHandle(void* handle)
  *        hw device > in stream > out stream
  */
 
-static void select_output_device(struct m0_audio_device *adev);
-static void select_input_device(struct m0_audio_device *adev);
+static void select_output_device(struct audio_device *adev);
+static void select_input_device(struct audio_device *adev);
 static int adev_set_voice_volume(struct audio_hw_device *dev, float volume);
-static int do_input_standby(struct m0_stream_in *in);
-static int do_output_standby(struct m0_stream_out *out);
-static void in_update_aux_channels(struct m0_stream_in *in, effect_handle_t effect);
+static int do_input_standby(struct stream_in *in);
+static int do_output_standby(struct stream_out *out);
+static void in_update_aux_channels(struct stream_in *in, effect_handle_t effect);
 
 /* The enable flag when 0 makes the assumption that enums are disabled by
  * "Off" and integers/booleans by 0 */
@@ -363,7 +363,7 @@ static int set_route_by_array(struct mixer *mixer, struct route_setting *route,
 }
 
 /* Must be called with lock */
-void select_devices(struct m0_audio_device *adev)
+void select_devices(struct audio_device *adev)
 {
     int i;
 
@@ -403,7 +403,7 @@ void select_devices(struct m0_audio_device *adev)
     adev->active_in_device = adev->in_device;
 }
 
-static int start_call(struct m0_audio_device *adev)
+static int start_call(struct audio_device *adev)
 {
     ALOGV("Opening modem PCMs");
     int bt_on;
@@ -482,7 +482,7 @@ err_open_dl:
     return -ENOMEM;
 }
 
-static void end_call(struct m0_audio_device *adev)
+static void end_call(struct audio_device *adev)
 {
     int bt_on;
     bt_on = adev->out_device & AUDIO_DEVICE_OUT_ALL_SCO;
@@ -520,11 +520,11 @@ static void end_call(struct m0_audio_device *adev)
     adev->pcm_bt_ul = NULL;
 }
 
-static void set_eq_filter(struct m0_audio_device *adev)
+static void set_eq_filter(struct audio_device *adev)
 {
 }
 
-static void set_incall_device(struct m0_audio_device *adev)
+static void set_incall_device(struct audio_device *adev)
 {
     int err;
     uint32_t mDevSettingsFlag = TTY_OFF;
@@ -605,19 +605,19 @@ static void set_incall_device(struct m0_audio_device *adev)
     old_rx_dev = rx_dev_id;
 }
 
-static void set_input_volumes(struct m0_audio_device *adev, int main_mic_on,
+static void set_input_volumes(struct audio_device *adev, int main_mic_on,
                               int headset_mic_on, int sub_mic_on)
 {
 }
 
-static void set_output_volumes(struct m0_audio_device *adev, bool tty_volume)
+static void set_output_volumes(struct audio_device *adev, bool tty_volume)
 {
 }
 
-static void force_all_standby(struct m0_audio_device *adev)
+static void force_all_standby(struct audio_device *adev)
 {
-    struct m0_stream_in *in;
-    struct m0_stream_out *out;
+    struct stream_in *in;
+    struct stream_out *out;
 
     /* only needed for low latency output streams as other streams are not used
      * for voice use cases */
@@ -637,7 +637,7 @@ static void force_all_standby(struct m0_audio_device *adev)
     }
 }
 
-static void select_mode(struct m0_audio_device *adev)
+static void select_mode(struct audio_device *adev)
 {
     int err;
 
@@ -689,7 +689,7 @@ static void select_mode(struct m0_audio_device *adev)
     }
 }
 
-static void select_output_device(struct m0_audio_device *adev)
+static void select_output_device(struct audio_device *adev)
 {
     int headset_on;
     int headphone_on;
@@ -804,7 +804,7 @@ static void select_output_device(struct m0_audio_device *adev)
     }
 }
 
-static void select_input_device(struct m0_audio_device *adev)
+static void select_input_device(struct audio_device *adev)
 {
     int input_device = AUDIO_DEVICE_BIT_IN | adev->in_device;
 
@@ -831,9 +831,9 @@ static void select_input_device(struct m0_audio_device *adev)
 }
 
 /* must be called with hw device and output stream mutexes locked */
-static int start_output_stream_low_latency(struct m0_stream_out *out)
+static int start_output_stream_low_latency(struct stream_out *out)
 {
-    struct m0_audio_device *adev = out->dev;
+    struct audio_device *adev = out->dev;
     unsigned int flags = PCM_OUT;
     int i;
     bool success = true;
@@ -888,9 +888,9 @@ static int start_output_stream_low_latency(struct m0_stream_out *out)
 }
 
 /* must be called with hw device and output stream mutexes locked */
-static int start_output_stream_deep_buffer(struct m0_stream_out *out)
+static int start_output_stream_deep_buffer(struct stream_out *out)
 {
-    struct m0_audio_device *adev = out->dev;
+    struct audio_device *adev = out->dev;
 
     if (adev->mode != AUDIO_MODE_IN_CALL) {
         select_output_device(adev);
@@ -958,7 +958,7 @@ static size_t get_input_buffer_size(uint32_t sample_rate, audio_format_t format,
     return size * channel_count * sizeof(short);
 }
 
-static void add_echo_reference(struct m0_stream_out *out,
+static void add_echo_reference(struct stream_out *out,
                                struct echo_reference_itfe *reference)
 {
     pthread_mutex_lock(&out->lock);
@@ -966,7 +966,7 @@ static void add_echo_reference(struct m0_stream_out *out,
     pthread_mutex_unlock(&out->lock);
 }
 
-static void remove_echo_reference(struct m0_stream_out *out,
+static void remove_echo_reference(struct stream_out *out,
                                   struct echo_reference_itfe *reference)
 {
     pthread_mutex_lock(&out->lock);
@@ -978,7 +978,7 @@ static void remove_echo_reference(struct m0_stream_out *out,
     pthread_mutex_unlock(&out->lock);
 }
 
-static void put_echo_reference(struct m0_audio_device *adev,
+static void put_echo_reference(struct audio_device *adev,
                           struct echo_reference_itfe *reference)
 {
     if (adev->echo_reference != NULL &&
@@ -993,7 +993,7 @@ static void put_echo_reference(struct m0_audio_device *adev,
     }
 }
 
-static struct echo_reference_itfe *get_echo_reference(struct m0_audio_device *adev,
+static struct echo_reference_itfe *get_echo_reference(struct audio_device *adev,
                                                audio_format_t format,
                                                uint32_t channel_count,
                                                uint32_t sampling_rate)
@@ -1022,7 +1022,7 @@ static struct echo_reference_itfe *get_echo_reference(struct m0_audio_device *ad
     return adev->echo_reference;
 }
 
-static int get_playback_delay(struct m0_stream_out *out,
+static int get_playback_delay(struct stream_out *out,
                        size_t frames,
                        struct echo_reference_buffer *buffer)
 {
@@ -1067,7 +1067,7 @@ static int out_set_sample_rate(struct audio_stream *stream, uint32_t rate)
 
 static size_t out_get_buffer_size_low_latency(const struct audio_stream *stream)
 {
-    struct m0_stream_out *out = (struct m0_stream_out *)stream;
+    struct stream_out *out = (struct stream_out *)stream;
 
     /* take resampling into account and return the closest majoring
     multiple of 16 frames, as audioflinger expects audio buffers to
@@ -1080,7 +1080,7 @@ static size_t out_get_buffer_size_low_latency(const struct audio_stream *stream)
 
 static size_t out_get_buffer_size_deep_buffer(const struct audio_stream *stream)
 {
-    struct m0_stream_out *out = (struct m0_stream_out *)stream;
+    struct stream_out *out = (struct stream_out *)stream;
 
     /* take resampling into account and return the closest majoring
     multiple of 16 frames, as audioflinger expects audio buffers to
@@ -1094,7 +1094,7 @@ static size_t out_get_buffer_size_deep_buffer(const struct audio_stream *stream)
 
 static audio_channel_mask_t out_get_channels(const struct audio_stream *stream)
 {
-    struct m0_stream_out *out = (struct m0_stream_out *)stream;
+    struct stream_out *out = (struct stream_out *)stream;
 
     return out->channel_mask;
 }
@@ -1110,9 +1110,9 @@ static int out_set_format(struct audio_stream *stream, audio_format_t format)
 }
 
 /* must be called with hw device and output stream mutexes locked */
-static int do_output_standby(struct m0_stream_out *out)
+static int do_output_standby(struct stream_out *out)
 {
-    struct m0_audio_device *adev = out->dev;
+    struct audio_device *adev = out->dev;
     int i;
     bool all_outputs_in_standby = true;
 
@@ -1138,7 +1138,7 @@ static int do_output_standby(struct m0_stream_out *out)
         if (out == adev->outputs[OUTPUT_HDMI]) {
             if (adev->outputs[OUTPUT_LOW_LATENCY] != NULL &&
                     !adev->outputs[OUTPUT_LOW_LATENCY]->standby) {
-                struct m0_stream_out *ll_out = adev->outputs[OUTPUT_LOW_LATENCY];
+                struct stream_out *ll_out = adev->outputs[OUTPUT_LOW_LATENCY];
                 pthread_mutex_lock(&ll_out->lock);
                 do_output_standby(ll_out);
                 pthread_mutex_unlock(&ll_out->lock);
@@ -1156,7 +1156,7 @@ static int do_output_standby(struct m0_stream_out *out)
 
 static int out_standby(struct audio_stream *stream)
 {
-    struct m0_stream_out *out = (struct m0_stream_out *)stream;
+    struct stream_out *out = (struct stream_out *)stream;
     int status;
 
     pthread_mutex_lock(&out->dev->lock);
@@ -1174,9 +1174,9 @@ static int out_dump(const struct audio_stream *stream, int fd)
 
 static int out_set_parameters(struct audio_stream *stream, const char *kvpairs)
 {
-    struct m0_stream_out *out = (struct m0_stream_out *)stream;
-    struct m0_audio_device *adev = out->dev;
-    struct m0_stream_in *in;
+    struct stream_out *out = (struct stream_out *)stream;
+    struct audio_device *adev = out->dev;
+    struct stream_in *in;
     struct str_parms *parms;
     char *str;
     char value[32];
@@ -1247,7 +1247,7 @@ static int out_set_parameters(struct audio_stream *stream, const char *kvpairs)
 
 static char * out_get_parameters(const struct audio_stream *stream, const char *keys)
 {
-    struct m0_stream_out *out = (struct m0_stream_out *)stream;
+    struct stream_out *out = (struct stream_out *)stream;
 
     struct str_parms *query = str_parms_create_str(keys);
     char *str;
@@ -1286,7 +1286,7 @@ static char * out_get_parameters(const struct audio_stream *stream, const char *
 
 static uint32_t out_get_latency_low_latency(const struct audio_stream_out *stream)
 {
-    struct m0_stream_out *out = (struct m0_stream_out *)stream;
+    struct stream_out *out = (struct stream_out *)stream;
 
     /*  Note: we use the default rate here from pcm_config_mm.rate */
     return (SHORT_PERIOD_SIZE * PLAYBACK_SHORT_PERIOD_COUNT * 1000) / pcm_config_tones.rate;
@@ -1294,7 +1294,7 @@ static uint32_t out_get_latency_low_latency(const struct audio_stream_out *strea
 
 static uint32_t out_get_latency_deep_buffer(const struct audio_stream_out *stream)
 {
-    struct m0_stream_out *out = (struct m0_stream_out *)stream;
+    struct stream_out *out = (struct stream_out *)stream;
 
     /*  Note: we use the default rate here from pcm_config_mm.rate */
     return (DEEP_BUFFER_LONG_PERIOD_SIZE * PLAYBACK_DEEP_BUFFER_LONG_PERIOD_COUNT * 1000) /
@@ -1311,13 +1311,13 @@ static ssize_t out_write_low_latency(struct audio_stream_out *stream, const void
                          size_t bytes)
 {
     int ret;
-    struct m0_stream_out *out = (struct m0_stream_out *)stream;
-    struct m0_audio_device *adev = out->dev;
+    struct stream_out *out = (struct stream_out *)stream;
+    struct audio_device *adev = out->dev;
     size_t frame_size = audio_stream_frame_size(&out->stream.common);
     size_t in_frames = bytes / frame_size;
     size_t out_frames = in_frames;
     bool force_input_standby = false;
-    struct m0_stream_in *in;
+    struct stream_in *in;
     int i;
 
     /* acquiring hw device mutex systematically is useful if a low priority thread is waiting
@@ -1403,8 +1403,8 @@ static ssize_t out_write_deep_buffer(struct audio_stream_out *stream, const void
                          size_t bytes)
 {
     int ret;
-    struct m0_stream_out *out = (struct m0_stream_out *)stream;
-    struct m0_audio_device *adev = out->dev;
+    struct stream_out *out = (struct stream_out *)stream;
+    struct audio_device *adev = out->dev;
     size_t frame_size = audio_stream_frame_size(&out->stream.common);
     size_t in_frames = bytes / frame_size;
     size_t out_frames;
@@ -1510,10 +1510,10 @@ static int out_remove_audio_effect(const struct audio_stream *stream, effect_han
 /** audio_stream_in implementation **/
 
 /* must be called with hw device and input stream mutexes locked */
-static int start_input_stream(struct m0_stream_in *in)
+static int start_input_stream(struct stream_in *in)
 {
     int ret = 0;
-    struct m0_audio_device *adev = in->dev;
+    struct audio_device *adev = in->dev;
 
     adev->active_input = in;
 
@@ -1572,7 +1572,7 @@ static int start_input_stream(struct m0_stream_in *in)
 
 static uint32_t in_get_sample_rate(const struct audio_stream *stream)
 {
-    struct m0_stream_in *in = (struct m0_stream_in *)stream;
+    struct stream_in *in = (struct stream_in *)stream;
 
     return in->requested_rate;
 }
@@ -1584,7 +1584,7 @@ static int in_set_sample_rate(struct audio_stream *stream, uint32_t rate)
 
 static size_t in_get_buffer_size(const struct audio_stream *stream)
 {
-    struct m0_stream_in *in = (struct m0_stream_in *)stream;
+    struct stream_in *in = (struct stream_in *)stream;
 
     return get_input_buffer_size(in->requested_rate,
                                  AUDIO_FORMAT_PCM_16_BIT,
@@ -1593,7 +1593,7 @@ static size_t in_get_buffer_size(const struct audio_stream *stream)
 
 static audio_channel_mask_t in_get_channels(const struct audio_stream *stream)
 {
-    struct m0_stream_in *in = (struct m0_stream_in *)stream;
+    struct stream_in *in = (struct stream_in *)stream;
 
     return in->main_channels;
 }
@@ -1609,9 +1609,9 @@ static int in_set_format(struct audio_stream *stream, audio_format_t format)
 }
 
 /* must be called with hw device and input stream mutexes locked */
-static int do_input_standby(struct m0_stream_in *in)
+static int do_input_standby(struct stream_in *in)
 {
-    struct m0_audio_device *adev = in->dev;
+    struct audio_device *adev = in->dev;
 
     if (!in->standby) {
         pcm_close(in->pcm);
@@ -1637,7 +1637,7 @@ static int do_input_standby(struct m0_stream_in *in)
 
 static int in_standby(struct audio_stream *stream)
 {
-    struct m0_stream_in *in = (struct m0_stream_in *)stream;
+    struct stream_in *in = (struct stream_in *)stream;
     int status;
 
     pthread_mutex_lock(&in->dev->lock);
@@ -1655,8 +1655,8 @@ static int in_dump(const struct audio_stream *stream, int fd)
 
 static int in_set_parameters(struct audio_stream *stream, const char *kvpairs)
 {
-    struct m0_stream_in *in = (struct m0_stream_in *)stream;
-    struct m0_audio_device *adev = in->dev;
+    struct stream_in *in = (struct stream_in *)stream;
+    struct audio_device *adev = in->dev;
     struct str_parms *parms;
     char *str;
     char value[32];
@@ -1710,7 +1710,7 @@ static int in_set_gain(struct audio_stream_in *stream, float gain)
     return 0;
 }
 
-static void get_capture_delay(struct m0_stream_in *in,
+static void get_capture_delay(struct stream_in *in,
                        size_t frames,
                        struct echo_reference_buffer *buffer)
 {
@@ -1761,7 +1761,7 @@ static void get_capture_delay(struct m0_stream_in *in,
 
 }
 
-static int32_t update_echo_reference(struct m0_stream_in *in, size_t frames)
+static int32_t update_echo_reference(struct stream_in *in, size_t frames)
 {
     struct echo_reference_buffer b;
     b.delay_ns = 0;
@@ -1828,7 +1828,7 @@ static int set_preprocessor_echo_delay(effect_handle_t handle,
     return set_preprocessor_param(handle, param);
 }
 
-static void push_echo_reference(struct m0_stream_in *in, size_t frames)
+static void push_echo_reference(struct stream_in *in, size_t frames)
 {
     /* read frames from echo reference buffer and update echo delay
      * in->ref_buf_frames is updated with frames available in in->ref_buf */
@@ -1863,13 +1863,13 @@ static void push_echo_reference(struct m0_stream_in *in, size_t frames)
 static int get_next_buffer(struct resampler_buffer_provider *buffer_provider,
                                    struct resampler_buffer* buffer)
 {
-    struct m0_stream_in *in;
+    struct stream_in *in;
 
     if (buffer_provider == NULL || buffer == NULL)
         return -EINVAL;
 
-    in = (struct m0_stream_in *)((char *)buffer_provider -
-                                   offsetof(struct m0_stream_in, buf_provider));
+    in = (struct stream_in *)((char *)buffer_provider -
+                                   offsetof(struct stream_in, buf_provider));
 
     if (in->pcm == NULL) {
         buffer->raw = NULL;
@@ -1912,20 +1912,20 @@ static int get_next_buffer(struct resampler_buffer_provider *buffer_provider,
 static void release_buffer(struct resampler_buffer_provider *buffer_provider,
                                   struct resampler_buffer* buffer)
 {
-    struct m0_stream_in *in;
+    struct stream_in *in;
 
     if (buffer_provider == NULL || buffer == NULL)
         return;
 
-    in = (struct m0_stream_in *)((char *)buffer_provider -
-                                   offsetof(struct m0_stream_in, buf_provider));
+    in = (struct stream_in *)((char *)buffer_provider -
+                                   offsetof(struct stream_in, buf_provider));
 
     in->read_buf_frames -= buffer->frame_count;
 }
 
 /* read_frames() reads frames from kernel driver, down samples to capture rate
  * if necessary and output the number of frames requested to the buffer specified */
-static ssize_t read_frames(struct m0_stream_in *in, void *buffer, ssize_t frames)
+static ssize_t read_frames(struct stream_in *in, void *buffer, ssize_t frames)
 {
     ssize_t frames_wr = 0;
 
@@ -1965,7 +1965,7 @@ static ssize_t read_frames(struct m0_stream_in *in, void *buffer, ssize_t frames
 /* process_frames() reads frames from kernel driver (via read_frames()),
  * calls the active audio pre processings and output the number of frames requested
  * to the buffer specified */
-static ssize_t process_frames(struct m0_stream_in *in, void* buffer, ssize_t frames)
+static ssize_t process_frames(struct stream_in *in, void* buffer, ssize_t frames)
 {
     ssize_t frames_wr = 0;
     audio_buffer_t in_buf;
@@ -2094,8 +2094,8 @@ static ssize_t in_read(struct audio_stream_in *stream, void* buffer,
                        size_t bytes)
 {
     int ret = 0;
-    struct m0_stream_in *in = (struct m0_stream_in *)stream;
-    struct m0_audio_device *adev = in->dev;
+    struct stream_in *in = (struct stream_in *)stream;
+    struct audio_device *adev = in->dev;
     size_t frames_rq = bytes / audio_stream_frame_size(&stream->common);
 
     /* acquiring hw device mutex systematically is useful if a low priority thread is waiting
@@ -2149,7 +2149,7 @@ static uint32_t in_get_input_frames_lost(struct audio_stream_in *stream)
                     status = cmd_status;                   \
             } while(0)
 
-static int in_configure_reverse(struct m0_stream_in *in)
+static int in_configure_reverse(struct stream_in *in)
 {
     int32_t cmd_status;
     uint32_t size = sizeof(int);
@@ -2189,7 +2189,7 @@ static int in_configure_reverse(struct m0_stream_in *in)
 
 #define MAX_NUM_CHANNEL_CONFIGS 10
 
-static void in_read_audio_effect_channel_configs(struct m0_stream_in *in,
+static void in_read_audio_effect_channel_configs(struct stream_in *in,
                                                  struct effect_info_s *effect_info)
 {
     /* size and format of the cmd are defined in hardware/audio_effect.h */
@@ -2239,7 +2239,7 @@ static void in_read_audio_effect_channel_configs(struct m0_stream_in *in,
 }
 
 
-static uint32_t in_get_aux_channels(struct m0_stream_in *in)
+static uint32_t in_get_aux_channels(struct stream_in *in)
 {
     int i;
     channel_config_t new_chcfg = {0, 0};
@@ -2353,7 +2353,7 @@ static int in_configure_effect_channels(effect_handle_t effect,
     return status;
 }
 
-static int in_reconfigure_channels(struct m0_stream_in *in,
+static int in_reconfigure_channels(struct stream_in *in,
                                    effect_handle_t effect,
                                    channel_config_t *channel_config,
                                    bool config_changed) {
@@ -2389,7 +2389,7 @@ static int in_reconfigure_channels(struct m0_stream_in *in,
     return status;
 }
 
-static void in_update_aux_channels(struct m0_stream_in *in,
+static void in_update_aux_channels(struct stream_in *in,
                                    effect_handle_t effect)
 {
     uint32_t aux_channels;
@@ -2422,7 +2422,7 @@ static void in_update_aux_channels(struct m0_stream_in *in,
 static int in_add_audio_effect(const struct audio_stream *stream,
                                effect_handle_t effect)
 {
-    struct m0_stream_in *in = (struct m0_stream_in *)stream;
+    struct stream_in *in = (struct stream_in *)stream;
     int status;
     effect_descriptor_t desc;
 
@@ -2465,7 +2465,7 @@ exit:
 static int in_remove_audio_effect(const struct audio_stream *stream,
                                   effect_handle_t effect)
 {
-    struct m0_stream_in *in = (struct m0_stream_in *)stream;
+    struct stream_in *in = (struct stream_in *)stream;
     int i;
     int status = -EINVAL;
     effect_descriptor_t desc;
@@ -2530,13 +2530,13 @@ static int adev_open_output_stream(struct audio_hw_device *dev,
                                    struct audio_config *config,
                                    struct audio_stream_out **stream_out)
 {
-    struct m0_audio_device *ladev = (struct m0_audio_device *)dev;
-    struct m0_stream_out *out;
+    struct audio_device *ladev = (struct audio_device *)dev;
+    struct stream_out *out;
     int ret;
     int output_type;
     *stream_out = NULL;
 
-    out = (struct m0_stream_out *)calloc(1, sizeof(struct m0_stream_out));
+    out = (struct stream_out *)calloc(1, sizeof(struct stream_out));
     if (!out)
         return -ENOMEM;
 
@@ -2603,8 +2603,8 @@ err_open:
 static void adev_close_output_stream(struct audio_hw_device *dev,
                                      struct audio_stream_out *stream)
 {
-    struct m0_audio_device *ladev = (struct m0_audio_device *)dev;
-    struct m0_stream_out *out = (struct m0_stream_out *)stream;
+    struct audio_device *ladev = (struct audio_device *)dev;
+    struct stream_out *out = (struct stream_out *)stream;
     int i;
 
     out_standby(&stream->common);
@@ -2624,7 +2624,7 @@ static void adev_close_output_stream(struct audio_hw_device *dev,
 
 static int adev_set_parameters(struct audio_hw_device *dev, const char *kvpairs)
 {
-    struct m0_audio_device *adev = (struct m0_audio_device *)dev;
+    struct audio_device *adev = (struct audio_device *)dev;
     struct str_parms *parms;
     char *str;
     char value[32];
@@ -2718,7 +2718,7 @@ static int adev_init_check(const struct audio_hw_device *dev)
 
 static int adev_set_voice_volume(struct audio_hw_device *dev, float volume)
 {
-    struct m0_audio_device *adev = (struct m0_audio_device *)dev;
+    struct audio_device *adev = (struct audio_device *)dev;
 
     adev->voice_volume = volume;
 
@@ -2743,7 +2743,7 @@ static int adev_set_master_volume(struct audio_hw_device *dev, float volume)
 
 static int adev_set_mode(struct audio_hw_device *dev, audio_mode_t mode)
 {
-    struct m0_audio_device *adev = (struct m0_audio_device *)dev;
+    struct audio_device *adev = (struct audio_device *)dev;
 
     pthread_mutex_lock(&adev->lock);
     if (adev->mode != mode) {
@@ -2757,7 +2757,7 @@ static int adev_set_mode(struct audio_hw_device *dev, audio_mode_t mode)
 
 static int adev_set_mic_mute(struct audio_hw_device *dev, bool state)
 {
-    struct m0_audio_device *adev = (struct m0_audio_device *)dev;
+    struct audio_device *adev = (struct audio_device *)dev;
 
     adev->mic_mute = state;
 
@@ -2775,7 +2775,7 @@ static int adev_set_mic_mute(struct audio_hw_device *dev, bool state)
 
 static int adev_get_mic_mute(const struct audio_hw_device *dev, bool *state)
 {
-    struct m0_audio_device *adev = (struct m0_audio_device *)dev;
+    struct audio_device *adev = (struct audio_device *)dev;
 
     *state = adev->mic_mute;
 
@@ -2799,8 +2799,8 @@ static int adev_open_input_stream(struct audio_hw_device *dev,
                                   struct audio_config *config,
                                   struct audio_stream_in **stream_in)
 {
-    struct m0_audio_device *ladev = (struct m0_audio_device *)dev;
-    struct m0_stream_in *in;
+    struct audio_device *ladev = (struct audio_device *)dev;
+    struct stream_in *in;
     int ret;
 
     /* Respond with a request for stereo if a different format is given. */
@@ -2816,7 +2816,7 @@ static int adev_open_input_stream(struct audio_hw_device *dev,
     if (check_input_parameters(config->sample_rate, config->format, channel_count) != 0)
         return -EINVAL;
 
-    in = (struct m0_stream_in *)calloc(1, sizeof(struct m0_stream_in));
+    in = (struct stream_in *)calloc(1, sizeof(struct stream_in));
     if (!in)
         return -ENOMEM;
 
@@ -2880,7 +2880,7 @@ err:
 static void adev_close_input_stream(struct audio_hw_device *dev,
                                    struct audio_stream_in *stream)
 {
-    struct m0_stream_in *in = (struct m0_stream_in *)stream;
+    struct stream_in *in = (struct stream_in *)stream;
     int i;
 
     in_standby(&stream->common);
@@ -2911,7 +2911,7 @@ static int adev_dump(const audio_hw_device_t *device, int fd)
 
 static int adev_close(hw_device_t *device)
 {
-    struct m0_audio_device *adev = (struct m0_audio_device *)device;
+    struct audio_device *adev = (struct audio_device *)device;
 
     /* QCOM CSD-Client */
     if (mCsdHandle) {
@@ -2931,8 +2931,8 @@ static int adev_close(hw_device_t *device)
 }
 
 struct config_parse_state {
-    struct m0_audio_device *adev;
-    struct m0_dev_cfg *dev;
+    struct audio_device *adev;
+    struct audio_dev_cfg *dev;
     bool on;
 
     struct route_setting *path;
@@ -2961,7 +2961,7 @@ static void adev_config_start(void *data, const XML_Char *elem,
                   const XML_Char **attr)
 {
     struct config_parse_state *s = data;
-    struct m0_dev_cfg *dev_cfg;
+    struct audio_dev_cfg *dev_cfg;
     const XML_Char *name = NULL;
     const XML_Char *val = NULL;
     unsigned int i, j;
@@ -3095,7 +3095,7 @@ static void adev_config_end(void *data, const XML_Char *name)
     }
 }
 
-static int adev_config_parse(struct m0_audio_device *adev)
+static int adev_config_parse(struct audio_device *adev)
 {
     struct config_parse_state s;
     FILE *f;
@@ -3158,13 +3158,13 @@ static int adev_config_parse(struct m0_audio_device *adev)
 static int adev_open(const hw_module_t* module, const char* name,
                      hw_device_t** device)
 {
-    struct m0_audio_device *adev;
+    struct audio_device *adev;
     int ret;
 
     if (strcmp(name, AUDIO_HARDWARE_INTERFACE) != 0)
         return -EINVAL;
 
-    adev = calloc(1, sizeof(struct m0_audio_device));
+    adev = calloc(1, sizeof(struct audio_device));
     if (!adev)
         return -ENOMEM;
 
