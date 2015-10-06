@@ -357,81 +357,112 @@ void select_devices(struct audio_device *adev)
     adev->active_in_device = adev->in_device;
 }
 
+static int start_bt_sco(struct audio_device *adev)
+{
+    if (adev->pcm_sco_rx || adev->pcm_sco_tx) {
+        ALOGW("SCO PCMs already open!\n");
+        return 0;
+    }
+
+    ALOGV("Opening SCO PCMs");
+
+    /* use amr-nb for bluetooth */
+    pcm_config_voice.rate = VX_NB_SAMPLING_RATE;
+
+    /* Open bluetooth PCM channels */
+    ALOGD("Opening PCM SCO RX stream");
+    adev->pcm_sco_rx = pcm_open(CARD_DEFAULT, PORT_BT, PCM_OUT, &pcm_config_voice);
+    if (adev->pcm_sco_rx && !pcm_is_ready(adev->pcm_sco_rx)) {
+        ALOGE("cannot open PCM SCO RX stream: %s", pcm_get_error(adev->pcm_sco_rx));
+        goto err_sco_rx;
+    }
+
+    ALOGD("Opening PCM SCO TX stream");
+    adev->pcm_sco_tx = pcm_open(CARD_DEFAULT, PORT_BT, PCM_IN, &pcm_config_voice);
+    if (adev->pcm_sco_tx && !pcm_is_ready(adev->pcm_sco_tx)) {
+        ALOGE("cannot open PCM SCO TX stream: %s", pcm_get_error(adev->pcm_sco_tx));
+        goto err_sco_tx;
+    }
+
+    ALOGD("Starting PCM SCO streams");
+    pcm_start(adev->pcm_sco_rx);
+    pcm_start(adev->pcm_sco_tx);
+
+    return 0;
+
+err_sco_tx:
+    pcm_close(adev->pcm_sco_tx);
+    adev->pcm_sco_tx = NULL;
+err_sco_rx:
+    pcm_close(adev->pcm_sco_rx);
+    adev->pcm_sco_rx = NULL;
+
+    return -ENOMEM;
+}
+
+static void end_bt_sco(struct audio_device *adev)
+{
+    if (adev->pcm_sco_rx != NULL) {
+        ALOGD("Stopping SCO RX PCM");
+        pcm_stop(adev->pcm_sco_rx);
+        ALOGV("Closing SCO RX PCM");
+        pcm_close(adev->pcm_sco_rx);
+    }
+    if (adev->pcm_sco_tx != NULL) {
+        ALOGD("Stopping SCO TX PCM");
+        pcm_stop(adev->pcm_sco_tx);
+        ALOGV("Closing SCO TX PCM");
+        pcm_close(adev->pcm_sco_tx);
+    }
+    adev->pcm_sco_rx = NULL;
+    adev->pcm_sco_tx = NULL;
+}
+
 static int start_call(struct audio_device *adev)
 {
-    ALOGV("Opening voice PCMs");
     int bt_on;
 
-    bt_on = adev->out_device & AUDIO_DEVICE_OUT_ALL_SCO;
-
-    if (bt_on) {
-       /* use amr-nb for bluetooth */
-       pcm_config_voice.rate = VX_NB_SAMPLING_RATE;
-    } else {
-       pcm_config_voice.rate = adev->wb_amr ? VX_WB_SAMPLING_RATE : VX_NB_SAMPLING_RATE;
+    if (adev->pcm_voice_rx || adev->pcm_voice_tx) {
+        ALOGW("Voice PCMs already open!\n");
+        return 0;
     }
+
+    ALOGV("Opening voice PCMs");
+
+    bt_on = adev->out_device & AUDIO_DEVICE_OUT_ALL_SCO;
+    pcm_config_voice.rate = adev->wb_amr ? VX_WB_SAMPLING_RATE : VX_NB_SAMPLING_RATE;
 
     /* Open modem PCM channels */
-    if (adev->pcm_voice_rx == NULL) {
-        ALOGD("Opening PCM voice RX stream");
-            adev->pcm_voice_rx = pcm_open(CARD_DEFAULT, PORT_MODEM, PCM_OUT, &pcm_config_voice);
-        if (!pcm_is_ready(adev->pcm_voice_rx)) {
-            ALOGE("cannot open PCM voice RX stream: %s", pcm_get_error(adev->pcm_voice_rx));
-            goto err_open_rx;
-        }
+    ALOGD("Opening PCM voice RX stream");
+    adev->pcm_voice_rx = pcm_open(CARD_DEFAULT, PORT_MODEM, PCM_OUT, &pcm_config_voice);
+    if (adev->pcm_voice_rx && !pcm_is_ready(adev->pcm_voice_rx)) {
+        ALOGE("cannot open PCM voice RX stream: %s", pcm_get_error(adev->pcm_voice_rx));
+        goto err_voice_rx;
     }
 
-    if (adev->pcm_voice_tx == NULL) {
-        ALOGD("Opening PCM voice TX stream");
-        adev->pcm_voice_tx = pcm_open(CARD_DEFAULT, PORT_MODEM, PCM_IN, &pcm_config_voice);
-        if (!pcm_is_ready(adev->pcm_voice_tx)) {
-            ALOGE("cannot open PCM voice TX stream: %s", pcm_get_error(adev->pcm_voice_tx));
-            goto err_open_tx;
-        }
+    ALOGD("Opening PCM voice TX stream");
+    adev->pcm_voice_tx = pcm_open(CARD_DEFAULT, PORT_MODEM, PCM_IN, &pcm_config_voice);
+    if (adev->pcm_voice_tx && !pcm_is_ready(adev->pcm_voice_tx)) {
+        ALOGE("cannot open PCM voice TX stream: %s", pcm_get_error(adev->pcm_voice_tx));
+        goto err_voice_tx;
     }
 
     ALOGD("Starting PCM voice streams");
     pcm_start(adev->pcm_voice_rx);
     pcm_start(adev->pcm_voice_tx);
 
-    /* Open bluetooth PCM channels */
     if (bt_on) {
-        ALOGV("Opening SCO PCMs");
-
-        if (adev->pcm_sco_rx == NULL) {
-            ALOGD("Opening PCM SCO RX stream");
-            adev->pcm_sco_rx = pcm_open(CARD_DEFAULT, PORT_BT, PCM_OUT, &pcm_config_voice);
-            if (!pcm_is_ready(adev->pcm_sco_rx)) {
-                ALOGE("cannot open PCM SCO RX stream: %s", pcm_get_error(adev->pcm_sco_rx));
-                goto err_open_rx;
-            }
-        }
-
-        if (adev->pcm_sco_tx == NULL) {
-            ALOGD("Opening PCM SCO TX stream");
-            adev->pcm_sco_tx = pcm_open(CARD_DEFAULT, PORT_BT, PCM_IN, &pcm_config_voice);
-            if (!pcm_is_ready(adev->pcm_sco_tx)) {
-                ALOGE("cannot open PCM SCO TX stream: %s", pcm_get_error(adev->pcm_sco_tx));
-                goto err_open_tx;
-            }
-        }
-        ALOGD("Starting PCM SCO streams");
-        pcm_start(adev->pcm_sco_rx);
-        pcm_start(adev->pcm_sco_tx);
+        start_bt_sco(adev);
     }
 
     return 0;
 
-err_open_tx:
+err_voice_tx:
     pcm_close(adev->pcm_voice_tx);
     adev->pcm_voice_tx = NULL;
-    pcm_close(adev->pcm_sco_tx);
-    adev->pcm_sco_tx = NULL;
-err_open_rx:
+err_voice_rx:
     pcm_close(adev->pcm_voice_rx);
     adev->pcm_voice_rx = NULL;
-    pcm_close(adev->pcm_sco_rx);
-    adev->pcm_sco_rx = NULL;
 
     return -ENOMEM;
 }
@@ -457,21 +488,8 @@ static void end_call(struct audio_device *adev)
     adev->pcm_voice_tx = NULL;
 
     if (bt_on) {
-        if (adev->pcm_sco_rx != NULL) {
-            ALOGD("Stopping SCO RX PCM");
-            pcm_stop(adev->pcm_sco_rx);
-            ALOGV("Closing SCO RX PCM");
-            pcm_close(adev->pcm_sco_rx);
-        }
-        if (adev->pcm_sco_tx != NULL) {
-            ALOGD("Stopping SCO TX PCM");
-            pcm_stop(adev->pcm_sco_tx);
-            ALOGV("Closing SCO TX PCM");
-            pcm_close(adev->pcm_sco_tx);
-        }
+        end_bt_sco(adev);
     }
-    adev->pcm_sco_rx = NULL;
-    adev->pcm_sco_tx = NULL;
 }
 
 static void set_eq_filter(struct audio_device *adev)
