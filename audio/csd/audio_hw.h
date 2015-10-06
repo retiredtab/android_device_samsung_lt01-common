@@ -97,13 +97,6 @@ enum output_type {
     OUTPUT_TOTAL
 };
 
-enum tty_modes {
-    TTY_MODE_OFF,
-    TTY_MODE_VCO,
-    TTY_MODE_HCO,
-    TTY_MODE_FULL
-};
-
 /* ACDB Device ID macros */
 #define DEVICE_HANDSET_RX_ACDB_ID                       7 // HANDSET_SPKR
 #define DEVICE_HANDSET_TX_ACDB_ID                       4 // HANDSET_MIC
