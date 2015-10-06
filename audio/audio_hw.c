@@ -921,7 +921,7 @@ static struct echo_reference_itfe *get_echo_reference(struct audio_device *adev,
             !adev->outputs[OUTPUT_LOW_LATENCY]->standby) {
         struct audio_stream *stream =
                 &adev->outputs[OUTPUT_LOW_LATENCY]->stream.common;
-        uint32_t wr_channel_count = popcount(stream->get_channels(stream));
+        uint32_t wr_channel_count = audio_channel_count_from_in_mask(stream->get_channels(stream));
         uint32_t wr_sampling_rate = stream->get_sample_rate(stream);
 
         int status = create_echo_reference(AUDIO_FORMAT_PCM_16_BIT,
@@ -1441,7 +1441,7 @@ static int start_input_stream(struct stream_in *in)
     if (in->aux_channels_changed)
     {
         in->aux_channels_changed = false;
-        in->config.channels = popcount(in->main_channels | in->aux_channels);
+        in->config.channels = audio_channel_count_from_in_mask(in->main_channels | in->aux_channels);
 
         if (in->resampler) {
             /* release and recreate the resampler with the new number of channel of the input */
@@ -1462,7 +1462,7 @@ static int start_input_stream(struct stream_in *in)
     if (in->need_echo_reference && in->echo_reference == NULL)
         in->echo_reference = get_echo_reference(adev,
                                         AUDIO_FORMAT_PCM_16_BIT,
-                                        popcount(in->main_channels),
+                                        audio_channel_count_from_in_mask(in->main_channels),
                                         in->requested_rate);
 
     /* this assumes routing is done previously */
@@ -1504,7 +1504,7 @@ static size_t in_get_buffer_size(const struct audio_stream *stream)
 
     return get_input_buffer_size(in->requested_rate,
                                  AUDIO_FORMAT_PCM_16_BIT,
-                                 popcount(in->main_channels));
+                                 audio_channel_count_from_in_mask(in->main_channels));
 }
 
 static audio_channel_mask_t in_get_channels(const struct audio_stream *stream)
@@ -1983,7 +1983,7 @@ static ssize_t process_frames(struct stream_in *in, void* buffer, ssize_t frames
     if (has_aux_channels)
     {
         size_t src_channels = in->config.channels;
-        size_t dst_channels = popcount(in->main_channels);
+        size_t dst_channels = audio_channel_count_from_in_mask(in->main_channels);
         int16_t* src_buffer = (int16_t *)proc_buf_out;
         int16_t* dst_buffer = (int16_t *)buffer;
 
@@ -2194,7 +2194,7 @@ static uint32_t in_get_aux_channels(struct stream_in *in)
             /* if all preprocessors match, we have a candidate */
             if (match_cnt == (size_t)in->num_preprocessors) {
                 /* retain most complex aux channels configuration */
-                if (popcount(cur_chcfg->aux_channels) > popcount(new_chcfg.aux_channels)) {
+                if (audio_channel_count_from_in_mask(cur_chcfg->aux_channels) > audio_channel_count_from_in_mask(new_chcfg.aux_channels)) {
                     new_chcfg = *cur_chcfg;
                 }
             }
@@ -2668,7 +2668,7 @@ static size_t adev_get_input_buffer_size(const struct audio_hw_device *dev,
                                          const struct audio_config *config)
 {
     size_t size;
-    int channel_count = popcount(config->channel_mask);
+    int channel_count = audio_channel_count_from_in_mask(config->channel_mask);
     if (check_input_parameters(config->sample_rate, config->format, channel_count) != 0)
         return 0;
 
@@ -2691,7 +2691,7 @@ static int adev_open_input_stream(struct audio_hw_device *dev,
         return -EINVAL;
     }
 
-    int channel_count = popcount(config->channel_mask);
+    int channel_count = audio_channel_count_from_in_mask(config->channel_mask);
 
     *stream_in = NULL;
 
