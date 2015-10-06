@@ -144,12 +144,6 @@ enum output_type {
 #define TTY_HCO         0x00000080
 #define TTY_CLEAR       0xFFFFFF0F
 
-struct mixer_ctls
-{
-    struct mixer_ctl *mixinl_in1l_volume;
-    struct mixer_ctl *mixinl_in2l_volume;
-};
-
 struct route_setting
 {
     char *ctl_name;
