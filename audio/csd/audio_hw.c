@@ -275,7 +275,7 @@ static int set_bigroute_by_array(struct mixer *mixer, struct route_setting *rout
     while (route[i].ctl_name) {
         ctl = mixer_get_ctl_by_name(mixer, route[i].ctl_name);
         if (!ctl) {
-        ALOGE("Unknown control '%s'\n", route[i].ctl_name);
+            ALOGE("Unknown control '%s'\n", route[i].ctl_name);
             return -EINVAL;
         }
 
@@ -333,32 +333,32 @@ static int set_route_by_array(struct mixer *mixer, struct route_setting *route,
     for (i = 0; i < len; i++) {
         ctl = mixer_get_ctl_by_name(mixer, route[i].ctl_name);
         if (!ctl) {
-        ALOGE("Unknown control '%s'\n", route[i].ctl_name);
+            ALOGE("Unknown control '%s'\n", route[i].ctl_name);
             return -EINVAL;
         }
 
         if (route[i].strval) {
-        ret = mixer_ctl_set_enum_by_string(ctl, route[i].strval);
-        if (ret != 0) {
-        ALOGE("Failed to set '%s' to '%s'\n",
-             route[i].ctl_name, route[i].strval);
-        } else {
-        ALOGV("Set '%s' to '%s'\n",
-             route[i].ctl_name, route[i].strval);
-        }
+            ret = mixer_ctl_set_enum_by_string(ctl, route[i].strval);
+            if (ret != 0) {
+                ALOGE("Failed to set '%s' to '%s'\n",
+                        route[i].ctl_name, route[i].strval);
+            } else {
+                ALOGV("Set '%s' to '%s'\n",
+                         route[i].ctl_name, route[i].strval);
+            }
 
         } else {
             /* This ensures multiple (i.e. stereo) values are set jointly */
             for (j = 0; j < mixer_ctl_get_num_values(ctl); j++) {
-        ret = mixer_ctl_set_value(ctl, j, route[i].intval);
-        if (ret != 0) {
-            ALOGE("Failed to set '%s'.%d to %d\n",
-             route[i].ctl_name, j, route[i].intval);
-        } else {
-            ALOGV("Set '%s'.%d to %d\n",
-             route[i].ctl_name, j, route[i].intval);
-        }
-        }
+                ret = mixer_ctl_set_value(ctl, j, route[i].intval);
+                if (ret != 0) {
+                    ALOGE("Failed to set '%s'.%d to %d\n",
+                            route[i].ctl_name, j, route[i].intval);
+                } else {
+                    ALOGV("Set '%s'.%d to %d\n",
+                             route[i].ctl_name, j, route[i].intval);
+                }
+            }
         }
     }
 
@@ -369,38 +369,41 @@ static int set_route_by_array(struct mixer *mixer, struct route_setting *route,
 void select_devices(struct audio_device *adev)
 {
     int i;
-
     if (adev->active_out_device == adev->out_device && adev->active_in_device == adev->in_device)
-    return;
+        return;
 
     ALOGV("Changing output device %x => %x\n", adev->active_out_device, adev->out_device);
     ALOGV("Changing input device %x => %x\n", adev->active_in_device, adev->in_device);
 
     /* Turn on new devices first so we don't glitch due to powerdown... */
     for (i = 0; i < adev->num_dev_cfgs; i++)
-    if ((adev->out_device & adev->dev_cfgs[i].mask) &&
-        !(adev->active_out_device & adev->dev_cfgs[i].mask))
-        set_route_by_array(adev->mixer, adev->dev_cfgs[i].on,
-                   adev->dev_cfgs[i].on_len);
+        if ((adev->out_device & adev->dev_cfgs[i].mask) &&
+                !(adev->active_out_device & adev->dev_cfgs[i].mask) &&
+                !(adev->dev_cfgs[i].mask & AUDIO_DEVICE_BIT_IN))
+            set_route_by_array(adev->mixer, adev->dev_cfgs[i].on,
+                    adev->dev_cfgs[i].on_len);
 
     for (i = 0; i < adev->num_dev_cfgs; i++)
-    if ((adev->in_device & adev->dev_cfgs[i].mask) &&
-        !(adev->active_in_device & adev->dev_cfgs[i].mask))
-        set_route_by_array(adev->mixer, adev->dev_cfgs[i].on,
-                   adev->dev_cfgs[i].on_len);
+        if ((adev->in_device & adev->dev_cfgs[i].mask) &&
+                !(adev->active_in_device & adev->dev_cfgs[i].mask) &&
+                (adev->dev_cfgs[i].mask & AUDIO_DEVICE_BIT_IN))
+            set_route_by_array(adev->mixer, adev->dev_cfgs[i].on,
+                    adev->dev_cfgs[i].on_len);
 
     /* ...then disable old ones. */
     for (i = 0; i < adev->num_dev_cfgs; i++)
-    if (!(adev->out_device & adev->dev_cfgs[i].mask) &&
-        (adev->active_out_device & adev->dev_cfgs[i].mask))
-        set_route_by_array(adev->mixer, adev->dev_cfgs[i].off,
-                   adev->dev_cfgs[i].off_len);
+        if (!(adev->out_device & adev->dev_cfgs[i].mask) &&
+                (adev->active_out_device & adev->dev_cfgs[i].mask) &&
+                !(adev->dev_cfgs[i].mask & AUDIO_DEVICE_BIT_IN))
+            set_route_by_array(adev->mixer, adev->dev_cfgs[i].off,
+                    adev->dev_cfgs[i].off_len);
 
     for (i = 0; i < adev->num_dev_cfgs; i++)
-    if (!(adev->in_device & adev->dev_cfgs[i].mask) &&
-        (adev->active_in_device & adev->dev_cfgs[i].mask))
-        set_route_by_array(adev->mixer, adev->dev_cfgs[i].off,
-                   adev->dev_cfgs[i].off_len);
+        if (!(adev->in_device & adev->dev_cfgs[i].mask) &&
+                (adev->active_in_device & adev->dev_cfgs[i].mask) &&
+                (adev->dev_cfgs[i].mask & AUDIO_DEVICE_BIT_IN))
+            set_route_by_array(adev->mixer, adev->dev_cfgs[i].off,
+                    adev->dev_cfgs[i].off_len);
 
     adev->active_out_device = adev->out_device;
     adev->active_in_device = adev->in_device;
@@ -2931,86 +2934,86 @@ static void adev_config_start(void *data, const XML_Char *elem,
     unsigned int i, j;
 
     for (i = 0; attr[i]; i += 2) {
-    if (strcmp(attr[i], "name") == 0)
-        name = attr[i + 1];
+        if (strcmp(attr[i], "name") == 0)
+            name = attr[i + 1];
 
-    if (strcmp(attr[i], "val") == 0)
-        val = attr[i + 1];
+        if (strcmp(attr[i], "val") == 0)
+            val = attr[i + 1];
     }
 
     if (strcmp(elem, "device") == 0) {
-    if (!name) {
-        ALOGE("Unnamed device\n");
-        return;
-    }
-
-    for (i = 0; i < sizeof(dev_names) / sizeof(dev_names[0]); i++) {
-        if (strcmp(dev_names[i].name, name) == 0) {
-        ALOGI("Allocating device %s\n", name);
-        dev_cfg = realloc(s->adev->dev_cfgs,
-                  (s->adev->num_dev_cfgs + 1)
-                  * sizeof(*dev_cfg));
-        if (!dev_cfg) {
-            ALOGE("Unable to allocate dev_cfg\n");
+        if (!name) {
+            ALOGE("Unnamed device\n");
             return;
         }
 
-        s->dev = &dev_cfg[s->adev->num_dev_cfgs];
-        memset(s->dev, 0, sizeof(*s->dev));
-        s->dev->mask = dev_names[i].mask;
+        for (i = 0; i < sizeof(dev_names) / sizeof(dev_names[0]); i++) {
+            if (strcmp(dev_names[i].name, name) == 0) {
+                ALOGI("Allocating device %s\n", name);
+                dev_cfg = realloc(s->adev->dev_cfgs,
+                        (s->adev->num_dev_cfgs + 1)
+                        * sizeof(*dev_cfg));
+                if (!dev_cfg) {
+                    ALOGE("Unable to allocate dev_cfg\n");
+                    return;
+                }
 
-        s->adev->dev_cfgs = dev_cfg;
-        s->adev->num_dev_cfgs++;
+                s->dev = &dev_cfg[s->adev->num_dev_cfgs];
+                memset(s->dev, 0, sizeof(*s->dev));
+                s->dev->mask = dev_names[i].mask;
+
+                s->adev->dev_cfgs = dev_cfg;
+                s->adev->num_dev_cfgs++;
+            }
         }
-    }
 
     } else if (strcmp(elem, "path") == 0) {
-    if (s->path_len)
-        ALOGW("Nested paths\n");
+        if (s->path_len)
+            ALOGW("Nested paths\n");
 
-    /* If this a path for a device it must have a role */
-    if (s->dev) {
-        /* Need to refactor a bit... */
-        if (strcmp(name, "on") == 0) {
-        s->on = true;
-        } else if (strcmp(name, "off") == 0) {
-        s->on = false;
-        } else {
-        ALOGW("Unknown path name %s\n", name);
+        /* If this a path for a device it must have a role */
+        if (s->dev) {
+            /* Need to refactor a bit... */
+            if (strcmp(name, "on") == 0) {
+                s->on = true;
+            } else if (strcmp(name, "off") == 0) {
+                s->on = false;
+            } else {
+                ALOGW("Unknown path name %s\n", name);
+            }
         }
-    }
 
     } else if (strcmp(elem, "ctl") == 0) {
-    struct route_setting *r;
+        struct route_setting *r;
 
-    if (!name) {
-        ALOGE("Unnamed control\n");
-        return;
-    }
+        if (!name) {
+            ALOGE("Unnamed control\n");
+            return;
+        }
 
-    if (!val) {
-        ALOGE("No value specified for %s\n", name);
-        return;
-    }
+        if (!val) {
+            ALOGE("No value specified for %s\n", name);
+            return;
+        }
 
-    ALOGV("Parsing control %s => %s\n", name, val);
+        ALOGV("Parsing control %s => %s\n", name, val);
 
-    r = realloc(s->path, sizeof(*r) * (s->path_len + 1));
-    if (!r) {
-        ALOGE("Out of memory handling %s => %s\n", name, val);
-        return;
-    }
+        r = realloc(s->path, sizeof(*r) * (s->path_len + 1));
+        if (!r) {
+            ALOGE("Out of memory handling %s => %s\n", name, val);
+            return;
+        }
 
-    r[s->path_len].ctl_name = strdup(name);
-    r[s->path_len].strval = NULL;
+        r[s->path_len].ctl_name = strdup(name);
+        r[s->path_len].strval = NULL;
 
-    /* This can be fooled but it'll do */
-    r[s->path_len].intval = atoi(val);
-    if (!r[s->path_len].intval && strcmp(val, "0") != 0)
-        r[s->path_len].strval = strdup(val);
+        /* This can be fooled but it'll do */
+        r[s->path_len].intval = atoi(val);
+        if (!r[s->path_len].intval && strcmp(val, "0") != 0)
+            r[s->path_len].strval = strdup(val);
 
-    s->path = r;
-    s->path_len++;
+        s->path = r;
+        s->path_len++;
     }
 }
 
@@ -3020,42 +3023,42 @@ static void adev_config_end(void *data, const XML_Char *name)
     unsigned int i;
 
     if (strcmp(name, "path") == 0) {
-    if (!s->path_len)
-        ALOGW("Empty path\n");
+        if (!s->path_len)
+            ALOGW("Empty path\n");
 
-    if (!s->dev) {
-        ALOGV("Applying %d element default route\n", s->path_len);
+        if (!s->dev) {
+            ALOGV("Applying %d element default route\n", s->path_len);
 
-        set_route_by_array(s->adev->mixer, s->path, s->path_len);
+            set_route_by_array(s->adev->mixer, s->path, s->path_len);
 
-        for (i = 0; i < s->path_len; i++) {
-        free(s->path[i].ctl_name);
-        free(s->path[i].strval);
-        }
+            for (i = 0; i < s->path_len; i++) {
+                free(s->path[i].ctl_name);
+                free(s->path[i].strval);
+            }
 
-        free(s->path);
+            free(s->path);
 
         /* Refactor! */
-    } else if (s->on) {
-        ALOGV("%d element on sequence\n", s->path_len);
-        s->dev->on = s->path;
-        s->dev->on_len = s->path_len;
+        } else if (s->on) {
+            ALOGV("%d element on sequence\n", s->path_len);
+            s->dev->on = s->path;
+            s->dev->on_len = s->path_len;
 
-    } else {
-        ALOGV("%d element off sequence\n", s->path_len);
+        } else {
+            ALOGV("%d element off sequence\n", s->path_len);
 
-        /* Apply it, we'll reenable anything that's wanted later */
-        set_route_by_array(s->adev->mixer, s->path, s->path_len);
+            /* Apply it, we'll reenable anything that's wanted later */
+            set_route_by_array(s->adev->mixer, s->path, s->path_len);
 
-        s->dev->off = s->path;
-        s->dev->off_len = s->path_len;
-    }
+            s->dev->off = s->path;
+            s->dev->off_len = s->path_len;
+        }
 
-    s->path_len = 0;
-    s->path = NULL;
+        s->path_len = 0;
+        s->path = NULL;
 
     } else if (strcmp(name, "device") == 0) {
-    s->dev = NULL;
+        s->dev = NULL;
     }
 }
 
@@ -3076,15 +3079,15 @@ static int adev_config_parse(struct audio_device *adev)
     ALOGV("Reading configuration from %s\n", file);
     f = fopen(file, "r");
     if (!f) {
-    ALOGE("Failed to open %s\n", file);
-    return -ENODEV;
+        ALOGE("Failed to open %s\n", file);
+        return -ENODEV;
     }
 
     p = XML_ParserCreate(NULL);
     if (!p) {
-    ALOGE("Failed to create XML parser\n");
-    ret = -ENOMEM;
-    goto out;
+        ALOGE("Failed to create XML parser\n");
+        ret = -ENOMEM;
+        goto out;
     }
 
     memset(&s, 0, sizeof(s));
@@ -3094,21 +3097,21 @@ static int adev_config_parse(struct audio_device *adev)
     XML_SetElementHandler(p, adev_config_start, adev_config_end);
 
     while (!eof) {
-    len = fread(file, 1, sizeof(file), f);
-    if (ferror(f)) {
-        ALOGE("I/O error reading config\n");
-        ret = -EIO;
-        goto out_parser;
-    }
-    eof = feof(f);
+        len = fread(file, 1, sizeof(file), f);
+        if (ferror(f)) {
+            ALOGE("I/O error reading config\n");
+            ret = -EIO;
+            goto out_parser;
+        }
+        eof = feof(f);
 
-    if (XML_Parse(p, file, len, eof) == XML_STATUS_ERROR) {
-        ALOGE("Parse error at line %u:\n%s\n",
-         (unsigned int)XML_GetCurrentLineNumber(p),
-         XML_ErrorString(XML_GetErrorCode(p)));
-        ret = -EINVAL;
-        goto out_parser;
-    }
+        if (XML_Parse(p, file, len, eof) == XML_STATUS_ERROR) {
+            ALOGE("Parse error at line %u:\n%s\n",
+                    (unsigned int)XML_GetCurrentLineNumber(p),
+                    XML_ErrorString(XML_GetErrorCode(p)));
+            ret = -EINVAL;
+            goto out_parser;
+        }
     }
 
  out_parser:
