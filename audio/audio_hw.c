@@ -249,16 +249,16 @@ static int set_bigroute_by_array(struct mixer *mixer, struct route_setting *rout
                 if (enable) {
                     ret = mixer_ctl_set_value(ctl, j, route[i].intval);
                     if (ret != 0) {
-                        ALOGE("Failed to set '%s' to '%d'\n", route[i].ctl_name, route[i].intval);
+                        ALOGE("Failed to set '%s'.%d to '%d'\n", route[i].ctl_name, j, route[i].intval);
                     } else {
-                        ALOGV("Set '%s' to '%d'\n", route[i].ctl_name, route[i].intval);
+                        ALOGV("Set '%s'.%d to '%d'\n", route[i].ctl_name, j, route[i].intval);
                     }
                 } else {
                     ret = mixer_ctl_set_value(ctl, j, 0);
                     if (ret != 0) {
-                        ALOGE("Failed to set '%s' to '%d'\n", route[i].ctl_name, route[i].intval);
+                        ALOGE("Failed to set '%s'.%d to '%d'\n", route[i].ctl_name, j, route[i].intval);
                     } else {
-                        ALOGV("Set '%s' to '%d'\n", route[i].ctl_name, 0);
+                        ALOGV("Set '%s'.%d to '%d'\n", route[i].ctl_name, j, 0);
                     }
                 }
             }
