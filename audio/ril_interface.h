@@ -51,8 +51,18 @@ enum ril_audio_path {
     SOUND_AUDIO_PATH_HEADSET,
     SOUND_AUDIO_PATH_SPEAKER,
     SOUND_AUDIO_PATH_BLUETOOTH,
+    SOUND_AUDIO_PATH_STEREO_BT,
+    SOUND_AUDIO_PATH_HEADPHONE,
     SOUND_AUDIO_PATH_BLUETOOTH_NO_NR,
-    SOUND_AUDIO_PATH_HEADPHONE
+    SOUND_AUDIO_PATH_MIC1,
+    SOUND_AUDIO_PATH_MIC2,
+    SOUND_AUDIO_PATH_BLUETOOTH_WB,
+    SOUND_AUDIO_PATH_BLUETOOTH_WB_NO_NR
+};
+
+enum ril_extra_volume {
+    ORIGINAL_PATH,
+    EXTRA_VOLUME_PATH
 };
 
 enum ril_clock_state {
@@ -71,8 +81,12 @@ enum ril_two_mic_state {
 };
 
 enum ril_mic_mute {
-    MIC_UNMUTE,
-    MIC_MUTE
+    TX_UNMUTE,
+    TX_MUTE,
+    RX_UNMUTE,
+    RX_MUTE,
+    RXTX_UNMUTE,
+    RXTX_MUTE,
 };
 
 /* Function prototypes */
@@ -80,10 +94,12 @@ int ril_open(struct ril_handle *ril);
 int ril_close(struct ril_handle *ril);
 int ril_set_call_volume(struct ril_handle *ril, enum ril_sound_type sound_type,
                         float volume);
-int ril_set_call_audio_path(struct ril_handle *ril, enum ril_audio_path path);
+int ril_set_call_audio_path(struct ril_handle *ril, enum ril_audio_path path,
+                            enum ril_extra_volume mode);
 int ril_set_call_clock_sync(struct ril_handle *ril, enum ril_clock_state state);
 void ril_register_set_wb_amr_callback(void *function, void *data);
-int ril_set_two_mic_control(struct ril_handle *ril, enum ril_two_mic_device device, enum ril_two_mic_state state);
+int ril_set_two_mic_control(struct ril_handle *ril, enum ril_two_mic_device device,
+                            enum ril_two_mic_state state);
 int ril_set_mic_mute(struct ril_handle *ril, enum ril_mic_mute state);
 #endif
 

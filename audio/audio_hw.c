@@ -550,7 +550,7 @@ static void set_incall_device(struct audio_device *adev)
 
     /* if output device isn't supported, open modem side to handset by default */
     ALOGE("%s: ril_set_call_audio_path(%d)", __func__, device_type);
-    ril_set_call_audio_path(&adev->ril, device_type);
+    ril_set_call_audio_path(&adev->ril, device_type, ORIGINAL_PATH);
 }
 
 static void force_all_standby(struct audio_device *adev)
@@ -2639,7 +2639,7 @@ static int adev_set_mic_mute(struct audio_hw_device *dev, bool state)
     struct audio_device *adev = (struct audio_device *)dev;
 
     if (adev->mode == AUDIO_MODE_IN_CALL)
-        ril_set_mic_mute(&adev->ril, state);
+        ril_set_mic_mute(&adev->ril, state ? TX_MUTE : TX_UNMUTE);
 
     adev->mic_mute = state;
 
