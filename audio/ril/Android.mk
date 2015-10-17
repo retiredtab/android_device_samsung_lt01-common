@@ -14,10 +14,20 @@
 
 LOCAL_PATH := $(call my-dir)
 
-ifneq ($(filter lt013g lt01wifi,$(TARGET_DEVICE)),)
-include $(LOCAL_PATH)/ril/Android.mk
-endif
+include $(CLEAR_VARS)
 
-ifneq ($(filter lt01lte,$(TARGET_DEVICE)),)
-include $(LOCAL_PATH)/csd/Android.mk
-endif
+LOCAL_MODULE := audio.primary.$(TARGET_BOOTLOADER_BOARD_NAME)
+LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)/hw
+LOCAL_MODULE_TAGS := optional
+
+LOCAL_SRC_FILES := audio_hw.c ril_interface.c
+
+LOCAL_C_INCLUDES += \
+	external/tinyalsa/include \
+	external/expat/lib \
+	$(call include-path-for, audio-utils) \
+	$(call include-path-for, audio-effects)
+
+LOCAL_SHARED_LIBRARIES := liblog libcutils libtinyalsa libaudioutils libdl libexpat
+
+include $(BUILD_SHARED_LIBRARY)
