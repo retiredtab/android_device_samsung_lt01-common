@@ -62,18 +62,18 @@ struct exynos_camera_preset exynos_camera_presets_smdk4x12[] = {
 		.focal_length = 3.43f,
 		.horizontal_view_angle = 59.6f,
 		.vertical_view_angle = 46.3f,
-		.metering = METERING_CENTER,
+		.metering = METERING_MATRIX,
 		.params = {
 			.preview_size_values = "1024x768",
 			.preview_size = "1024x768",
 			.preview_format_values = "yuv420sp,yuv420p",
 			.preview_format = "yuv420sp",
-			.preview_frame_rate_values = "30,20,15",
+			.preview_frame_rate_values = "30,25,15,7,0",
 			.preview_frame_rate = 30,
-			.preview_fps_range_values = "(10000,30000)",
-			.preview_fps_range = "10000,30000",
+			.preview_fps_range_values = "(0,30000)",
+			.preview_fps_range = "0,30000",
 
-			.picture_size_values = "2560x1920,2048x1536,1600x1200,960x720,640x480",
+			.picture_size_values = "2560x1920,2560x1440,2048x1536,2048x1152,1600x1200,960x720,640x480",
 			.picture_size = "2560x1920",
 			.picture_format_values = "jpeg",
 			.picture_format = "jpeg",
@@ -87,20 +87,16 @@ struct exynos_camera_preset exynos_camera_presets_smdk4x12[] = {
 			.full_video_snap_supported = 0,
 
 			.recording_size = "1280x720",
-			.recording_size_values = "1280x720,1920x1080,720x480,640x480,352x288,320x240,176x144",
+			.recording_size_values = "1920x1080,1280x720,720x480,640x480,352x288,320x240,176x144",
 			.recording_format = "yuv420sp",
 
 			.focus_mode = "auto",
-			.focus_mode_values = "auto,infinity,macro,fixed,continuous-picture,continuous-video",
+			.focus_mode_values = "auto,infinity,macro,fixed,facedetect,continuous-picture,continuous-video",
 			.focus_distances = "0.15,1.20,Infinity",
 			.focus_areas = "(0,0,0,0,0)",
 			.max_num_focus_areas = 1,
 
-			.zoom_supported = 1,
-			.smooth_zoom_supported = 1,
-			.zoom_ratios = "100,102,104,109,111,113,119,121,124,131,134,138,146,150,155,159,165,170,182,189,200,213,222,232,243,255,283,300,319,364,400",
-			.zoom = 0,
-			.max_zoom = 30,
+			.zoom_supported = 0,
 
 			.flash_mode = NULL,
 			.flash_mode_values = NULL,
@@ -111,10 +107,10 @@ struct exynos_camera_preset exynos_camera_presets_smdk4x12[] = {
 			.max_exposure_compensation = 4,
 
 			.whitebalance = "auto",
-			.whitebalance_values = "auto,fluorescent,daylight,cloudy-daylight",
+			.whitebalance_values = "auto,incandescent,fluorescent,daylight,cloudy-daylight",
 
-			.antibanding = "50hz",
-			.antibanding_values = "50hz,off",
+			.antibanding = NULL,
+			.antibanding_values = NULL,
 
 			.scene_mode = "auto",
 			.scene_mode_values = "auto,portrait,landscape,night,beach,snow,sunset,fireworks,sports,party,candlelight,dusk-dawn,fall-color,text,back-light",
@@ -123,7 +119,7 @@ struct exynos_camera_preset exynos_camera_presets_smdk4x12[] = {
 			.effect_values = "none,mono,negative,sepia,solarize,sketch,pastel",
 
 			.iso = "auto",
-			.iso_values = "auto,ISO100,ISO200,ISO400,ISO800",
+			.iso_values = "auto,ISO50,ISO100,ISO200,ISO400",
 		},
 		.mbus_resolutions = NULL,
 		.mbus_resolutions_count = 0,
@@ -141,16 +137,16 @@ struct exynos_camera_preset exynos_camera_presets_smdk4x12[] = {
 		.focal_length = 2.17f,
 		.horizontal_view_angle = 54.7f,
 		.vertical_view_angle = 52.58f,
-		.metering = METERING_CENTER,
+		.metering = METERING_MATRIX,
 		.params = {
 			.preview_size_values = "640x480,352x288,320x240",
 			.preview_size = "640x480",
 			.preview_format_values = "yuv420sp,yuv420p",
 			.preview_format = "yuv420sp",
-			.preview_frame_rate_values = "30,15",
+			.preview_frame_rate_values = "30,25,15,7,0",
 			.preview_frame_rate = 30,
-			.preview_fps_range_values = "(15000,30000)",
-			.preview_fps_range = "15000,30000",
+			.preview_fps_range_values = "(0,30000)",
+			.preview_fps_range = "0,30000",
 
 			.picture_size_values = "1280x960,640x480",
 			.picture_size = "1280x960",
@@ -188,8 +184,8 @@ struct exynos_camera_preset exynos_camera_presets_smdk4x12[] = {
 			.whitebalance = "auto",
 			.whitebalance_values = "auto,fluorescent,daylight,cloudy-daylight",
 
-			.antibanding = "50hz",
-			.antibanding_values = "50hz,off",
+			.antibanding = NULL,
+			.antibanding_values = NULL,
 
 			.scene_mode = "auto",
 			.scene_mode_values = "auto,portrait,landscape,night,beach,snow,sunset,fireworks,sports,party,candlelight,dusk-dawn,fall-color,text,back-light",
@@ -198,7 +194,7 @@ struct exynos_camera_preset exynos_camera_presets_smdk4x12[] = {
 			.effect_values = "none,mono,negative,sepia,solarize,sketch,pastel",
 
 			.iso = "auto",
-			.iso_values = "auto,ISO100,ISO200,ISO400,ISO800",
+			.iso_values = "auto,ISO50,ISO100,ISO200,ISO400",
 		},
 		.mbus_resolutions = NULL,
 		.mbus_resolutions_count = 0,
@@ -894,13 +890,6 @@ int exynos_camera_params_apply(struct exynos_camera *exynos_camera, int force)
 				ALOGE("%s: Unable to set antibanding", __func__);
 		}
 	}
-	
-		rc = exynos_v4l2_s_ctrl(exynos_camera, 0, V4L2_CID_CAMERA_AE_LOCK_UNLOCK, AE_UNLOCK);
-		if (rc < 0)
-			 ALOGE("%s: Unable to set antibanding", __func__);
-		rc = exynos_v4l2_s_ctrl(exynos_camera, 0, V4L2_CID_CAMERA_AWB_LOCK_UNLOCK, AWB_UNLOCK);
-		if (rc < 0)
-			  ALOGE("%s: Unable to set antibanding", __func__);
 
 	// WB
 
