@@ -19,6 +19,5 @@
 <resources>
     <!-- 2 minutes for default screen timeout -->
     <integer name="def_screen_off_timeout">120000</integer>
-    <!-- Default for Settings.System.SWAP_VOLUME_KEYS_ON_ROTATION -->
-    <bool name="def_swap_volume_keys_on_rotation">true</bool>
+
 </resources>

@@ -1,2 +1,0 @@
-allow system_app volume_data_file:file { read write open getattr };
-allow system_app sysfs_display:file { getattr open read write };

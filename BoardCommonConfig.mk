@@ -22,7 +22,7 @@ TARGET_SPECIFIC_HEADER_PATH := device/samsung/lt01-common/include
 
 # Kernel
 BOARD_KERNEL_BASE := 0x10000000
-BOARD_KERNEL_CMDLINE := console=ttySAC2,115200 androidboot.selinux=permissive
+BOARD_KERNEL_CMDLINE := console=ttySAC2,115200 
 
 # Use dlmalloc instead of jemalloc for mallocs
 MALLOC_IMPL := dlmalloc
@@ -43,6 +43,7 @@ BOARD_EXYNOS4X12_TABLET := true
 # Camera
 BOARD_USES_PROPRIETARY_LIBCAMERA := true
 
+
 # Recovery
 BOARD_UMS_LUNFILE := "/sys/class/android_usb/android0/f_mass_storage/lun/file"
 
@@ -56,43 +57,7 @@ BOARD_EXYNOS4X12_TABLET_HAS_LED_BUTTONS := true
 BOARD_SKIP_ANDROID_DOC_BUILD := true
 
 # Selinux
-BOARD_SEPOLICY_DIRS += \
-    device/samsung/lt01-common/selinux
-
-BOARD_SEPOLICY_UNION += \
-    at_distributor.te \
-    cbd.te \
-    diag_uart_log.te \
-    file_contexts \
-    healthd.te \
-    te_macros \
-    device.te \
-    dhcp.te \
-    domain.te \
-    file.te \
-    geomagneticd.te \
-    gpsd.te \
-    init.te \
-    kernel.te \
-    kickstart.te \
-    macloader.te \
-    mediaserver.te \
-    netd.te \
-    netmgrd.te \
-    orientationd.te \
-    qmiproxy.te \
-    qmuxd.te \
-    rild.te \
-    secril.te \
-    servicemanager.te \
-    sysinit.te \
-    system_app.te \
-    system_server.te \
-    tinyplay.te \
-    tvoutservice.te \
-    ueventd.te \
-    vold.te \
-    wpa_supplicant.te
+BOARD_SEPOLICY_DIRS += device/samsung/lt01-common/sepolicy
 
 # Charging mode
 BOARD_CHARGING_CMDLINE_NAME := lpcharge

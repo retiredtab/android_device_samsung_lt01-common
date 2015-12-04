@@ -1,2 +1,0 @@
-allow netd init:tcp_socket { rw_socket_perms };
-allow netd kernel:system module_request;

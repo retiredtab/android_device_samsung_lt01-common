@@ -27,7 +27,7 @@
 
 #include <linux/input.h>
 
-
+#include <cstring>
 #include <utils/Atomic.h>
 #include <utils/Log.h>
 

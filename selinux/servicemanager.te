@@ -1,3 +1,0 @@
-allow servicemanager gpsd:dir { search };
-allow servicemanager gpsd:file { r_file_perms };
-allow servicemanager gpsd:process { getattr };
