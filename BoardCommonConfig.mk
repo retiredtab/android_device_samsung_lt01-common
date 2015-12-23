@@ -43,6 +43,8 @@ BOARD_EXYNOS4X12_TABLET := true
 # Camera
 BOARD_USES_PROPRIETARY_LIBCAMERA := true
 
+# Graphics
+TARGET_REQUIRES_SYNCHRONOUS_SETSURFACE := true
 
 # Recovery
 BOARD_UMS_LUNFILE := "/sys/class/android_usb/android0/f_mass_storage/lun/file"
