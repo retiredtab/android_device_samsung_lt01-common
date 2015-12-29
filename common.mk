@@ -45,6 +45,10 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     camera.smdk4x12
 
+# RIL
+PRODUCT_PACKAGES += \
+	libsamsung_symbols
+
 # IRDA
 PRODUCT_PACKAGES += \
     consumerir.exynos4

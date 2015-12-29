@@ -5067,6 +5067,9 @@ typedef struct {
 /***********************************************************************/
 
 /* SAMSUNG REQUESTS */
+#undef RIL_REQUEST_SIM_OPEN_CHANNEL
+#undef RIL_REQUEST_SIM_CLOSE_CHANNEL
+
 #define RIL_REQUEST_GET_CELL_BROADCAST_CONFIG 10002
 
 #define RIL_REQUEST_SEND_ENCODED_USSD 10005
