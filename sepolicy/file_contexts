@@ -3,40 +3,55 @@
 /dev/ump                                u:object_r:mali_device:s0
 /dev/fimg2d                             u:object_r:mali_device:s0
 
-/dev/s3c-mfc                            u:object_r:mfc_device:s0
-
 # RIL
+/dev/umts_boot0                         u:object_r:radio_device:s0
+/dev/umts_csd                           u:object_r:radio_device:s0
+/dev/umts_ipc0                          u:object_r:radio_device:s0
+/dev/umts_loopback0                     u:object_r:radio_device:s0
+/dev/umts_ramdump0                      u:object_r:radio_device:s0
+/dev/umts_rfs0                          u:object_r:radio_device:s0
+/dev/umts_router                        u:object_r:radio_device:s0
+
 /dev/mdm                                u:object_r:radio_device:s0
 /dev/hsicctl[0-3]*                      u:object_r:radio_device:s0
 /dev/ttyUSB0                            u:object_r:radio_device:s0
 /dev/diag                               u:object_r:diagnostic_device:s0
 
-/dev/umts_boot0				u:object_r:ril_device:s0
-/dev/umts_ipc0				u:object_r:ril_device:s0
-/dev/umts_rfs0				u:object_r:ril_device:s0
-
 # GPS
 /dev/ttySAC1                            u:object_r:gps_device:s0
+
+/data/gps/gps\.interface\.pipe\.to_gpsd	u:object_r:gps_data_file:s0
+/data/gps/gps\.interface\.pipe\.to_jni	u:object_r:gps_data_file:s0
+/data/gps/ctrlpipe	u:object_r:gps_data_file:s0
+/data/gps/.gpslogd.pipe	u:object_r:gps_data_file:s0
+/data/gps/nmeapipe	u:object_r:gps_data_file:s0
+
+/system/lib/hw/gps.default.so   u:object_r:gps_data_file:s0
+
+# AT Distributor
+/dev/ttySAC2                            u:object_r:serial_device:s0
 
 # Bluetooth
 /dev/ttySAC0                            u:object_r:hci_attach_dev:s0
 /efs/bluetooth(/.*)?                    u:object_r:bluetooth_data_file:s0
+/sys/class/rfkill/rfkill0/state         u:object_r:sysfs_bluetooth_writable:s0
+/sys/class/rfkill/rfkill0/type          u:object_r:sysfs_bluetooth_writable:s0
 
 # Sensors
-/dev/akm8963                            u:object_r:sensors_device:s0
-/efs/gyro_cal_data                      u:object_r:sensors_data_file:s0
+/efs/grip_cal_data                      u:object_r:sensors_data_file:s0
 
 # Camera
 /data/ISP_CV                            u:object_r:camera_data_file:s0
 /dev/exynos-mem                         u:object_r:video_device:s0
 
-# For wpa_supp
+# Wifi
 /dev/rfkill                             u:object_r:rfkill_device:s0
+/efs/wifi/.mac.info                     u:object_r:wifi_data_file:s0
 
 # Firmwares
-/system/vendor/firmware(/.*)?           u:object_r:firmware_camera:s0
+/system/vendor/firmware(/.*)?           u:object_r:firmware_exynos:s0
 /system/vendor/firmware/mfc_fw.bin      u:object_r:firmware_mfc:s0
-/data/cfw(/.*)?                         u:object_r:firmware_camera:s0
+/data/cfw(/.*)?                         u:object_r:firmware_exynos:s0
 /tombstones                             u:object_r:system_data_file:s0
 /tombstones(/.*)?                       u:object_r:tombstone_data_file:s0
 /tombstones/qcks(/.*)?                  u:object_r:kickstart_data_file:s0
@@ -44,34 +59,57 @@
 # Vibrator
 /dev/tspdrv                             u:object_r:input_device:s0
 
-# Wifi
-/efs/wifi/.mac.info                     u:object_r:wifi_data_file:s0
-
 # Sec-ril
 /efs/FactoryApp/keystr                  u:object_r:efs_file:s0
 /efs/FactoryApp/factorymode             u:object_r:efs_file:s0
 /efs/FactoryApp/serial_no               u:object_r:efs_file:s0
+/efs/nv_data.bin                        u:object_r:efs_file:s0
+/efs/nv_data.bin.md5                    u:object_r:efs_file:s0
+/efs/.nv_state                          u:object_r:efs_file:s0
 /data/misc/radio/ramdumpmode.txt        u:object_r:radio_data_file:s0
 /data/misc/radio/dlnk                   u:object_r:radio_data_file:s0
 
 # Binaries
-/system/bin/qmuxd                u:object_r:qmux_exec:s0
-/system/bin/netmgrd              u:object_r:netmgrd_exec:s0
-/system/bin/efsks                u:object_r:kickstart_exec:s0
-/system/bin/ks                   u:object_r:kickstart_exec:s0
-/system/bin/qcks                 u:object_r:kickstart_exec:s0
-/system/bin/sec-ril              u:object_r:secril-daemon_exec:s0
+/sbin/cbd                               u:object_r:cbd_exec:s0
+/system/bin/app_process	                u:object_r:zygote_exec:s0
+/system/bin/at_distributor              u:object_r:at_distributor_exec:s0
+/system/bin/bintvoutservice             u:object_r:bintvoutservice_exec:s0
+/system/bin/diag_uart_log               u:object_r:diag_uart_log_exec:s0
+/system/bin/efsks                       u:object_r:kickstart_exec:s0
+/system/bin/geomagneticd                u:object_r:geomagneticd_exec:s0
+/system/bin/gpsd                        u:object_r:gpsd_exec:s0
+/system/bin/ks                          u:object_r:kickstart_exec:s0
+/system/bin/macloader                   u:object_r:macloader_exec:s0
+/system/bin/netmgrd                     u:object_r:netmgrd_exec:s0
+/system/bin/orientationd                u:object_r:orientationd_exec:s0
+/system/bin/qcks                        u:object_r:kickstart_exec:s0
+/system/bin/qmiproxy                    u:object_r:qmiproxy_exec:s0
+/system/bin/qmuxd                       u:object_r:qmuxd_exec:s0
+/system/bin/sec-ril                     u:object_r:secril-daemon_exec:s0
+/system/bin/tinyplay                    u:object_r:tinyplay_exec:s0
 
 # Sockets
-/dev/socket/qmux_audio(/.*)?     u:object_r:qmuxd_socket:s0
-/dev/socket/qmux_bluetooth(/.*)? u:object_r:qmuxd_socket:s0
-/dev/socket/qmux_gps(/.*)?       u:object_r:qmuxd_socket:s0
-/dev/socket/qmux_radio(/.*)?     u:object_r:qmuxd_socket:s0
+/dev/socket/qmux_audio(/.*)?            u:object_r:qmuxd_socket:s0
+/dev/socket/qmux_bluetooth(/.*)?        u:object_r:qmuxd_socket:s0
+/dev/socket/qmux_gps(/.*)?              u:object_r:qmuxd_socket:s0
+/dev/socket/qmux_radio(/.*)?            u:object_r:qmuxd_socket:s0
 
 # Block devices
-/dev/block/mmcblk0p[3-6]*       u:object_r:efs_block_device:s0
-/dev/block/mmcblk0p13           u:object_r:efs_block_device:s0
-/dev/block/mmcblk0p14           u:object_r:efs_block_device:s0
+/dev/block/mmcblk0p[3-6]*               u:object_r:efs_block_device:s0
+/dev/block/mmcblk0p7                    u:object_r:efs_block_device:s0
+/dev/block/mmcblk0p10                   u:object_r:efs_block_device:s0
+/dev/block/mmcblk0p13                   u:object_r:efs_block_device:s0
 
 # Audio related
-/data/local/audio(/.*)?         u:object_r:volume_data_file:s0
+/dev/srp                                u:object_r:audio_device:s0
+/data/local/audio(/.*)?                 u:object_r:volume_data_file:s0
+
+# Video devices
+/dev/s3c-mfc                            u:object_r:video_device:s0
+
+# mdnie
+/sys/class/mdnie/mdnie/scenario         u:object_r:sysfs_display:s0
+/sys/class/mdnie/mdnie/mode             u:object_r:sysfs_display:s0
+
+/dev/block/platform/dw_mmc\.0/by-name/userdata     u:object_r:userdata_block_device:s0
+/dev/block/platform/dw_mmc\.0/by-name/cache        u:object_r:cache_block_device:s0
