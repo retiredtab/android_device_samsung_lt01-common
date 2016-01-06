@@ -45,6 +45,10 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     camera.smdk4x12
 
+# GPS
+PRODUCT_PACKAGES += \
+    libgpsd-compat
+
 # RIL
 PRODUCT_PACKAGES += \
 	libsamsung_symbols
