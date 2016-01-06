@@ -2,4 +2,7 @@ allow init self:capability sys_module;
 allow init wpa_socket:unix_dgram_socket { bind create };
 allow init self:tcp_socket { create_socket_perms name_connect };
 allow init radio_efs_file:filesystem { relabelto };
-allow init system_file:file { execute_no_trans execmod };
+allow init sysfs_type:{ dir file lnk_file } { create getattr setattr relabelfrom unlink };
+allow init sysfs:file { create getattr setattr read relabelfrom unlink  };
+allow init zygote_exec:file read;
+
