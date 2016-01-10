@@ -43,7 +43,8 @@ PRODUCT_COPY_FILES += \
 
 # Camera
 PRODUCT_PACKAGES += \
-    camera.smdk4x12
+    camera.smdk4x12 \
+    Snap
 
 # GPS
 PRODUCT_PACKAGES += \
