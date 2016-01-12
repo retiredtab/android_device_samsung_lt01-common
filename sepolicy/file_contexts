@@ -33,6 +33,7 @@
 
 # Sensors
 /efs/grip_cal_data                      u:object_r:sensors_data_file:s0
+/data/system/yas*.cfg                   u:object_r:sensor_data_file:s0
 
 # Camera
 /data/ISP_CV                            u:object_r:camera_data_file:s0

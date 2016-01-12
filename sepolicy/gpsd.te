@@ -25,7 +25,7 @@ file_type_auto_trans(gpsd, system_data_file, gps_data_file);
 # gpsd - GPS daemon
 allow gpsd rild:unix_stream_socket { connectto };
 allow gpsd self:process { execmem };
-allow gpsd sysfs_wake_lock:file { read write };
+allow gpsd sysfs_wake_lock:file { read write open };
 
 
 

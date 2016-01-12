@@ -4,5 +4,5 @@ allow init self:tcp_socket { create_socket_perms name_connect };
 allow init radio_efs_file:filesystem { relabelto };
 allow init sysfs_type:{ dir file lnk_file } { create getattr setattr relabelfrom unlink };
 allow init sysfs:file { create getattr setattr read relabelfrom unlink  };
-allow init zygote_exec:file read;
+allow init zygote_exec:lnk_file read;
 
