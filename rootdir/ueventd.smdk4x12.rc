@@ -33,13 +33,14 @@
 /dev/block/mmcblk0p13     0660   system     radio
 /dev/block/mmcblk0p14     0660   system     radio
 /dev/mdm                  0660   system     radio
-/dev/ttyUSB0              0666   system     system
-/dev/ttyUSB1              0666   system     radio
-/dev/ttyUSB2              0666   system     system
-/dev/hsic*                0660   system     radio
+/dev/ttyUSB0              0660   system     system
+/dev/ttyUSB1              0660   system     radio
+/dev/ttyUSB2              0660   system     system
+/dev/hsic*                0666   system     radio
 /dev/diag                 0660   system     radio
 
 /dev/usb/lp*              0660   system     usb
+/dev/ttyGS0               0660   system     system
 
 /dev/ttySAC*              0660   root       system
 /dev/umts*                0660   system     radio

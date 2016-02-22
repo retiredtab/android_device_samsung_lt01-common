@@ -16,6 +16,7 @@
 /dev/hsicctl[0-3]*                      u:object_r:radio_device:s0
 /dev/ttyUSB0                            u:object_r:radio_device:s0
 /dev/diag                               u:object_r:diagnostic_device:s0
+/dev/qcom_diag                          u:object_r:diagnostic_device:s0
 
 # GPS
 /dev/ttySAC1                            u:object_r:gps_device:s0
@@ -42,6 +43,8 @@
 # Wifi
 /dev/rfkill                             u:object_r:rfkill_device:s0
 /efs/wifi/.mac.info                     u:object_r:wifi_data_file:s0
+/data/.cid.info                         u:object_r:wifi_data_file:s0
+/data/.rev                              u:object_r:wifi_data_file:s0
 
 # Firmwares
 /system/vendor/firmware(/.*)?           u:object_r:firmware_exynos:s0
@@ -82,6 +85,7 @@
 /system/bin/qmuxd                       u:object_r:qmuxd_exec:s0
 /system/bin/sec-ril                     u:object_r:secril-daemon_exec:s0
 /system/bin/tinyplay                    u:object_r:tinyplay_exec:s0
+/system/bin/smdexe                      u:object_r:SMD-daemon_exec:s0
 
 # Sockets
 /dev/socket/qmux_audio(/.*)?            u:object_r:qmuxd_socket:s0
@@ -103,8 +107,8 @@
 /dev/s3c-mfc                            u:object_r:video_device:s0
 
 # mdnie
-/sys/class/mdnie/mdnie/scenario         u:object_r:sysfs_display:s0
-/sys/class/mdnie/mdnie/mode             u:object_r:sysfs_display:s0
+/sys/class/mdnie/mdnie/scenario         u:object_r:mdnie_sysfs:s0
+/sys/class/mdnie/mdnie/mode             u:object_r:mdnie_sysfs:s0
 
 /dev/block/platform/dw_mmc\.0/by-name/userdata     u:object_r:userdata_block_device:s0
 /dev/block/platform/dw_mmc\.0/by-name/cache        u:object_r:cache_block_device:s0

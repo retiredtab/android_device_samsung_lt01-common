@@ -6,7 +6,6 @@ type secril-daemon_exec, exec_type, file_type;
 init_daemon_domain(secril-daemon)
 
 wakelock_use(secril-daemon)
-
 allow secril-daemon secril-daemon_exec:file { open execute_no_trans getattr };
 allow secril-daemon self:udp_socket { create ioctl };
 unix_socket_connect(secril-daemon, property, init)
@@ -14,7 +13,7 @@ unix_socket_connect(secril-daemon, rild, rild)
 
 allow secril-daemon { efs_file }:file rw_file_perms;
 allow secril-daemon system_data_file:dir create_dir_perms;
-
+#allow secril-daemon system_data_file:file unlink;
 allow secril-daemon radio_data_file:file { create_file_perms };
 allow secril-daemon radio_data_file:dir { rw_dir_perms };
 allow secril-daemon kernel:system module_request;
@@ -26,4 +25,18 @@ allow secril-daemon app_data_file:file rw_file_perms;
 allow secril-daemon app_data_file:dir search;
 allow secril-daemon zygote_exec:file rx_file_perms;
 allow secril-daemon ashmem_device:chr_file x_file_perms;
-allow secril-daemon radio_prop:property_service set;
+
+allow secril-daemon secril-daemon:process { execmem };
+allow secril-daemon unlabeled:dir { search };
+allow secril-daemon radio_prop:property_service { set };
+allow secril-daemon sysfs_wake_lock:file { read write open };
+allow secril-daemon unlabeled:file { read open getattr setattr };
+#allow secril-daemon system_file:file { entrypoint };
+allow secril-daemon radio_data_file:dir { search };
+allow secril-daemon radio_data_file:dir { search write add_name read open remove_name };
+allow secril-daemon efs_file:dir { search };
+allow secril-daemon rild_exec:file { entrypoint read };
+allow secril-daemon qmuxd_socket:dir { write add_name remove_name search };
+allow secril-daemon qmuxd_socket:sock_file { create setattr unlink };
+
+
