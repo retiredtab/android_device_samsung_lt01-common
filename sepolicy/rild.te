@@ -16,9 +16,9 @@ allow rild mediaserver:dir { r_dir_perms };
 allow rild proc_net:file { rw_file_perms };
 
 # Talk to qmuxd
-#allow rild qmux_radio_socket:dir { write remove_name search add_name };
-#allow rild qmux_radio_socket:sock_file { write create unlink setattr };
-#allow rild qmuxd:unix_stream_socket connectto;
+allow rild qmuxd_socket:dir { write remove_name search add_name };
+allow rild qmuxd_socket:sock_file { write create unlink setattr };
+allow rild qmuxd:unix_stream_socket connectto;
 qmux_socket(rild);
 binder_use(rild)
 
@@ -51,6 +51,7 @@ allow rild log_device:dir { search };
 allow rild self:capability dac_override;
 
 allow rild unlabeled:dir { search };
+allow rild unlabeled:file { open read getattr };
 
 allow rild at_distributor:dir { search };
 allow rild at_distributor:file { read open getattr };

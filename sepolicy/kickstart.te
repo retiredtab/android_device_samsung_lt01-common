@@ -10,7 +10,7 @@ init_daemon_domain(kickstart)
 
 # Spawn /system/bin/efsks and /system/bin/ks
 allow kickstart kickstart_exec:file { open execute_no_trans getattr };
-allow kickstart rild_exec:file { open execute_no_trans getattr };
+allow kickstart rild_exec:file { getattr execute read open };
 
 # Run dd on m9kefs[123] block devices; write to /data/qcks/
 # Run cat on firmware and m9kefs[123] data; write to /data/qcks/

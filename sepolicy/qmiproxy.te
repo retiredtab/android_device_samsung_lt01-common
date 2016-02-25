@@ -16,3 +16,5 @@ allow qmiproxy qmuxd_socket:dir { search write add_name };
 allow qmiproxy qmuxd_socket:sock_file { create setattr getattr unlink };
 allow qmiproxy property_socket:sock_file { open write };
 allow qmiproxy init:unix_stream_socket connectto;
+
+allow qmiproxy system_file:file { execmod };

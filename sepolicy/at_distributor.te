@@ -18,7 +18,7 @@ allow at_distributor radio_data_file:file { open write create getattr read };
 allow at_distributor unlabeled:dir { search getattr };
 allow at_distributor unlabeled:file { open read write setattr getattr };
 
-allow at_distributor self:capability { dac_override };
+allow at_distributor self:capability { dac_override chown fowner setuid fsetid };
 
 allow at_distributor property_socket:sock_file { open write };
 
