@@ -48,7 +48,7 @@ allow kickstart sysfs:file rw_file_perms;
 allow kickstart unlabeled:file { setattr getattr read write open };
 allow kickstart vfat:file { getattr read open };
 allow kickstart kickstart:process { execmem };
-allow kickstart usbfs:filesystem { mount };
+#allow kickstart usbfs:filesystem { mount };
 allow kickstart usbfs:dir { search };
 #allow kickstart system_file:file { entrypoint };
 allow kickstart vfat:dir { search };
