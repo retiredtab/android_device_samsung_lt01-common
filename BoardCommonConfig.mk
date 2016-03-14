@@ -20,6 +20,12 @@
 
 TARGET_SPECIFIC_HEADER_PATH := device/samsung/lt01-common/include
 
+COMMON_PATH := device/samsung/lt01-common
+
+# Bluetooth
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := $(COMMON_PATH)/bluetooth
+BOARD_BLUEDROID_VENDOR_CONF := $(COMMON_PATH)/bluetooth/vnd_tab3.txt
+
 # Kernel
 BOARD_KERNEL_BASE := 0x10000000
 BOARD_KERNEL_CMDLINE := console=ttySAC2,115200 
