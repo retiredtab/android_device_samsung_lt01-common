@@ -77,14 +77,12 @@
 /system/bin/geomagneticd                u:object_r:geomagneticd_exec:s0
 /system/bin/gpsd                        u:object_r:gpsd_exec:s0
 /system/bin/ks                          u:object_r:kickstart_exec:s0
-/system/bin/macloader                   u:object_r:macloader_exec:s0
 /system/bin/netmgrd                     u:object_r:netmgrd_exec:s0
 /system/bin/orientationd                u:object_r:orientationd_exec:s0
 /system/bin/qcks                        u:object_r:kickstart_exec:s0
 /system/bin/qmiproxy                    u:object_r:qmiproxy_exec:s0
 /system/bin/qmuxd                       u:object_r:qmuxd_exec:s0
 /system/bin/sec-ril                     u:object_r:secril-daemon_exec:s0
-/system/bin/tinyplay                    u:object_r:tinyplay_exec:s0
 /system/bin/smdexe                      u:object_r:SMD-daemon_exec:s0
 
 # Sockets
