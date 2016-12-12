@@ -54,6 +54,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
 	libsamsung_symbols
 
+# SHIM
+PRODUCT_PACKAGES += \
+	libshim_wvm
+
 # IRDA
 PRODUCT_PACKAGES += \
     consumerir.exynos4
