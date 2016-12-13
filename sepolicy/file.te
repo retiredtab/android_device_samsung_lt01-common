@@ -1,8 +1,6 @@
 type radio_efs_file, fs_type, contextmount_type;
 
-type firmware_mfc, file_type;
 type firmware_camera, file_type;
-type firmware_exynos, file_type;
 
 type mdnie_sysfs, file_type;
 type vib_sysfs, file_type;
@@ -28,6 +26,7 @@ type sysfs_hsic_modem_wait, sysfs_type, fs_type;
 type cbd_device, dev_type;
 type sensor_data_file, file_type, data_file_type;
 type sysfs_smd_open_timeout, sysfs_type, fs_type;
+type sysfs_gps, fs_type, sysfs_type;
 
 # Persist file types
 type persist_file, file_type;

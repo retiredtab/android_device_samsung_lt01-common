@@ -1,8 +1,3 @@
-# GFX
-/dev/mali                               u:object_r:mali_device:s0
-/dev/ump                                u:object_r:mali_device:s0
-/dev/fimg2d                             u:object_r:mali_device:s0
-
 # RIL
 /dev/umts_boot0                         u:object_r:radio_device:s0
 /dev/umts_csd                           u:object_r:radio_device:s0
@@ -20,8 +15,8 @@
 
 # GPS
 /dev/ttySAC1                            u:object_r:gps_device:s0
-
-/data/system/gps(/.*)?		u:object_r:gps_data_file:s0
+/sys/devices/virtual/gpio/gpio128/value u:object_r:sysfs_gps:s0
+/data/system/gps(/.*)?		            u:object_r:gps_data_file:s0
 
 # AT Distributor
 /dev/ttySAC2                            u:object_r:serial_device:s0
@@ -36,10 +31,6 @@
 /efs/grip_cal_data                      u:object_r:sensors_data_file:s0
 /data/system/yas*.cfg                   u:object_r:sensor_data_file:s0
 
-# Camera
-/data/ISP_CV                            u:object_r:camera_data_file:s0
-/dev/exynos-mem                         u:object_r:video_device:s0
-
 # Wifi
 /dev/rfkill                             u:object_r:rfkill_device:s0
 /efs/wifi/.mac.info                     u:object_r:wifi_data_file:s0
@@ -47,9 +38,7 @@
 /data/.rev                              u:object_r:wifi_data_file:s0
 
 # Firmwares
-/system/vendor/firmware(/.*)?           u:object_r:firmware_exynos:s0
-/system/vendor/firmware/mfc_fw.bin      u:object_r:firmware_mfc:s0
-/data/cfw(/.*)?                         u:object_r:firmware_exynos:s0
+
 /tombstones                             u:object_r:system_data_file:s0
 /tombstones(/.*)?                       u:object_r:tombstone_data_file:s0
 /tombstones/qcks(/.*)?                  u:object_r:kickstart_data_file:s0
@@ -101,8 +90,6 @@
 /dev/srp                                u:object_r:audio_device:s0
 /data/local/audio(/.*)?                 u:object_r:volume_data_file:s0
 
-# Video devices
-/dev/s3c-mfc                            u:object_r:video_device:s0
 
 # mdnie
 /sys/class/mdnie/mdnie/scenario         u:object_r:mdnie_sysfs:s0
