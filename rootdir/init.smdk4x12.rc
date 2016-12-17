@@ -22,6 +22,20 @@ on init
     # insmod /lib/modules/exfat_core.ko
     # insmod /lib/modules/exfat_fs.ko
 
+# macloader
+
+    rm /data/.cid.info
+
+    chown system system /efs/wifi/.mac.cob
+    chown system system /efs/wifi/.mac.info
+
+    chmod 0666 /efs/wifi/.mac.cob
+    chmod 0666 /efs/wifi/.mac.info
+
+    copy /efs/wifi/.mac.cob /efs/wifi/.mac.info
+
+ start macloader
+
 on early-boot
     # Set RLIMIT_MEMLOCK to 64MB
     setrlimit 8 67108864 67108864
