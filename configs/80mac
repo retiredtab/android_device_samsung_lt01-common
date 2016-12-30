@@ -1,0 +1,14 @@
+#!/system/bin/sh
+#
+# Copy mac address to correct file to be read by macloader
+#
+mount -o remount,rw -t auto /system
+MAC_ADDR_SRC=/efs/wifi/.mac.cob
+
+STOCK_MAC_ADDR=$(toybox cat $MAC_ADDR_SRC)
+CM_MAC_ADDR=00:90:4c:c5:12:38
+[ -f $MAC_ADDR_SRC ] && {
+    toybox sed -i s/$CM_MAC_ADDR/$STOCK_MAC_ADDR/g /system/etc/wifi/nvram_*
+}
+
+mount -o remount,ro -t auto /system

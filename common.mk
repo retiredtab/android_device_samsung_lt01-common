@@ -38,6 +38,9 @@ PRODUCT_COPY_FILES := \
     $(COMMON_PATH)/rootdir/ueventd.smdk4x12.rc:root/ueventd.smdk4x12.rc \
     $(COMMON_PATH)/rootdir/ueventd.smdk4x12.rc:recovery/root/ueventd.smdk4x12.rc
 
+PRODUCT_COPY_FILES += \
+    $(COMMON_PATH)/configs/80mac:system/etc/init.d/80mac
+
 # Camera
 PRODUCT_PACKAGES += \
     camera.smdk4x12 \
