@@ -57,7 +57,7 @@
 /data/misc/radio/dlnk                   u:object_r:radio_data_file:s0
 
 # Binaries
-/sbin/cbd                               u:object_r:cbd_exec:s0
+/system/bin/cbd                         u:object_r:cpboot-daemon_exec:s0
 /system/bin/app_process	                u:object_r:zygote_exec:s0
 /system/bin/at_distributor              u:object_r:at_distributor_exec:s0
 /system/bin/bintvoutservice             u:object_r:bintvoutservice_exec:s0
