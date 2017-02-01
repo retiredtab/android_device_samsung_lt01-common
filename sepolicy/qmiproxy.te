@@ -1,20 +1,11 @@
-# qmiproxy
 type qmiproxy, domain;
 type qmiproxy_exec, exec_type, file_type;
-
-net_domain(qmiproxy)
 init_daemon_domain(qmiproxy)
-unix_socket_connect(qmiproxy, property, init)
-unix_socket_connect(qmiproxy, qmuxd, init)
+domain_trans(init, rootfs, qmiproxy)
 
-allow qmiproxy log_device:chr_file { open write };
-allow qmiproxy log_device:dir { search };
-
-allow qmiproxy diagnostic_device:chr_file { rw_file_perms };
-allow qmiproxy radio_prop:property_service { set };
-allow qmiproxy qmuxd_socket:dir { search write add_name };
-allow qmiproxy qmuxd_socket:sock_file { create setattr getattr unlink };
-allow qmiproxy property_socket:sock_file { open write };
+allow qmiproxy radio_device:chr_file { read write open };
 allow qmiproxy init:unix_stream_socket connectto;
-
-allow qmiproxy system_file:file { execmod };
+allow qmiproxy property_socket:sock_file write;
+allow qmiproxy radio_prop:property_service set;
+allow qmiproxy socket_device:dir { write add_name };
+allow qmiproxy socket_device:sock_file create;
