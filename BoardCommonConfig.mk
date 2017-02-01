@@ -119,6 +119,10 @@ BOARD_CAMERA_HAVE_ISO := true
 BOARD_USES_PROPRIETARY_LIBFIMC := true
 BOARD_CAMERA_MSG_MGMT := true
 
+# Hardware tunables
+BOARD_HARDWARE_CLASS := hardware/samsung/cmhw \
+    device/samsung/lt01-common/cmhw
+
 # Graphics
 TARGET_REQUIRES_SYNCHRONOUS_SETSURFACE := true
 BOARD_EGL_NEEDS_HANDLE_VALUE := true
