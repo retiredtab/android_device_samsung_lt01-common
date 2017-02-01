@@ -400,6 +400,13 @@ on fs
     write /proc/sys/vm/lowmem_reserve_ratio 54 54
 
 on post-fs-data
+
+# Telephony
+    chmod 0666 /proc/cmdline
+    symlink /data/user_de/0/com.android.providers.telephony/databases /data/data/com.android.providers.telephony/databases
+    symlink /data/user_de/0/com.android.providers.telephony/shared_prefs /data/data/com.android.providers.telephony/shared_prefs
+
+
     # properly create system data folder and permission
     mkdir /data/system 0771 system system
     chown system system /data/system
