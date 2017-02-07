@@ -38,6 +38,12 @@ PRODUCT_COPY_FILES := \
     $(COMMON_PATH)/rootdir/ueventd.smdk4x12.rc:root/ueventd.smdk4x12.rc \
     $(COMMON_PATH)/rootdir/ueventd.smdk4x12.rc:recovery/root/ueventd.smdk4x12.rc
 
+#TWRP (optional)
+ifeq ($(WITH_TWRP),true)
+PRODUCT_COPY_FILES += \
+    $(COMMON_PATH)/rootdir/twrp.fstab:recovery/root/etc/twrp.fstab
+endif
+
 PRODUCT_COPY_FILES += \
     $(COMMON_PATH)/configs/80mac:system/etc/init.d/80mac
 
@@ -82,7 +88,7 @@ PRODUCT_PACKAGES := \
     libstlport \
     libsync \
     libUMP \
-    lights.exynos4 \
+    lights.smdk4x12 \
     macloader \
     sensorservice \
     sensors.smdk4x12 \

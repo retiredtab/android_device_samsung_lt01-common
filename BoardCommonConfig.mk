@@ -221,3 +221,23 @@ TARGET_SYSTEM_PROP += device/samsung/lt01-common/system.prop
 
 # inherit from the proprietary version
 -include vendor/samsung/lt01-common/BoardConfigVendor.mk
+
+# TWRP Recovery
+ifeq ($(WITH_TWRP),true)
+RECOVERY_VARIANT := twrp
+TW_THEME := portrait_hdpi
+RECOVERY_SDCARD_ON_DATA := true
+BOARD_HAS_NO_REAL_SDCARD := true
+TARGET_USERIMAGES_USE_EXT4 := true
+TW_NO_USB_STORAGE := true
+TW_INCLUDE_FUSE_EXFAT := true
+TWHAVE_SELINUX := true
+TW_NO_REBOOT_BOOTLOADER := true
+TW_HAS_DOWNLOAD_MODE := true
+TW_NO_SCREEN_BLANK := true
+TW_NO_SCREEN_TIMEOUT := true
+HAVE_SELINUX := true
+TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel/brightness"
+TW_USE_TOOLBOX := true
+TW_EXCLUDE_SUPERSU := true
+endif
