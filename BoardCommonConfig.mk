@@ -167,7 +167,6 @@ WIFI_DRIVER_FW_PATH_P2P          := "/system/etc/wifi/bcmdhd_p2p.bin"
 WIFI_DRIVER_MODULE_NAME          := "dhd"
 WIFI_DRIVER_MODULE_ARG           := "firmware_path=/system/etc/wifi/bcmdhd_sta.bin nvram_path=/system/etc/wifi/nvram_net.txt"
 WIFI_DRIVER_MODULE_AP_ARG        := "firmware_path=/system/etc/wifi/bcmdhd_apsta.bin nvram_path=/system/etc/wifi/nvram_net.txt"
-
 WIFI_BAND                        := 802_11_ABG
 BOARD_HAVE_SAMSUNG_WIFI          := true
 
@@ -209,7 +208,11 @@ BOARD_EXYNOS4X12_TABLET_HAS_LED_BUTTONS := true
 BOARD_SKIP_ANDROID_DOC_BUILD := true
 
 # Selinux
+ifeq ($(TARGET_DEVICE),lt01lte)
+BOARD_SEPOLICY_DIRS += device/samsung/lt01lte/sepolicy
+else
 BOARD_SEPOLICY_DIRS += device/samsung/lt01-common/sepolicy
+endif
 
 # Charging mode
 BOARD_CHARGING_CMDLINE_NAME := lpcharge
@@ -223,6 +226,7 @@ TARGET_SYSTEM_PROP += device/samsung/lt01-common/system.prop
 
 # TWRP Recovery
 ifeq ($(WITH_TWRP),true)
+TW_DEVICE_VERSION=1
 RECOVERY_VARIANT := twrp
 TW_THEME := portrait_hdpi
 RECOVERY_SDCARD_ON_DATA := true
