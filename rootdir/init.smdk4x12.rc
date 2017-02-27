@@ -623,12 +623,14 @@ service orientationd /system/bin/orientationd
     class main
     user compass
     group input
+    seclabel u:r:orientationd:s0
 
 # YAMAHA Sensors geomagnetic daemon
 service geomagneticd /system/bin/geomagneticd
     class main
     user compass
     group system input
+    seclabel u:r:geomagneticd:s0
 
 # TVout
 service TvoutService_C /system/bin/bintvoutservice
