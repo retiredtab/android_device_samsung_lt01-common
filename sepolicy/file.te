@@ -1,7 +1,10 @@
 type sysfs_macloader, fs_type, sysfs_type;
-
+type radio_efs_file, fs_type, contextmount_type;
 type firmware_mfc, file_type;
 type firmware_exynos, file_type;
+type sysfs_display, fs_type, sysfs_type;
+type SMD-daemon_exec, exec_type, file_type;
+type SMD-daemon, domain;
 
 # Persist file types
 type persist_file, file_type;
