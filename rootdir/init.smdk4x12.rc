@@ -8,19 +8,12 @@ on early-init
 on init
     loglevel 7
 
-
 # Support legacy paths
     symlink /sdcard /mnt/sdcard
-    symlink /sdcard /storage/sdcard0
+    symlink /sdcard /storage/sdcard0    
 
-    
-
-    # To store widevine keybox
+# To store widevine keybox
     symlink /data/app /factory
-
-    # ko files for exfat
-    # insmod /lib/modules/exfat_core.ko
-    # insmod /lib/modules/exfat_fs.ko
 
 on early-boot
     # Set RLIMIT_MEMLOCK to 64MB
@@ -389,9 +382,6 @@ on fs
     chown system radio /sys/class/sec/switch/otg_test
     chown system radio /sys/class/sec/switch/apo_factory
 
-    # Permissions for touchkey_led
-    chown system radio /sys/class/sec/sec_touchscreen/brightness
-
     # Permissions for touchkey
     chown system radio /sys/class/sec/sec_touchkey/touchkey_menu_cmdelta
     chown system radio /sys/class/sec/sec_touchkey/touchkey_back_cmdelta
@@ -588,35 +578,6 @@ service wpa_supplicant /system/bin/wpa_supplicant \
     disabled
     oneshot
 
-service dhcpcd_wlan0 /system/bin/dhcpcd -aABDKL
-    class main
-    disabled
-    oneshot
-
-service dhcpcd_p2p /system/bin/dhcpcd -aABKL
-    class main
-    disabled
-    oneshot
-
-service dhcpcd_bt-pan /system/bin/dhcpcd -ABKL
-    class main
-    disabled
-    oneshot
-
-service iprenew_wlan0 /system/bin/dhcpcd -n
-    class main
-    disabled
-    oneshot
-
-service iprenew_p2p /system/bin/dhcpcd -n
-    class main
-    disabled
-    oneshot
-
-service iprenew_bt-pan /system/bin/dhcpcd -n
-    class main
-    disabled
-    oneshot
 
 # YAMAHA Sensors orientation daemon
 service orientationd /system/bin/orientationd
