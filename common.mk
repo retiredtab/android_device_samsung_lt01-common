@@ -75,7 +75,6 @@ PRODUCT_PACKAGES := \
     camera.smdk4x12 \
     com.android.future.usb.accessory \
     consumerir.exynos4 \
-    Gello \
     gralloc.exynos4 \
     hwcomposer.exynos4 \
     libfimc \
