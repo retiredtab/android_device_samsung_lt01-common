@@ -10,3 +10,9 @@ allow gpsd cache_file:dir remove_name;
 allow gpsd system_server:binder call;
 # load SHIM libraries
 allow init gpsd:process noatsecure;
+
+#============= gpsd ==============
+allow gpsd sensorservice_service:service_manager find;
+allow gpsd system_server:fd use;
+allow gpsd system_server:unix_stream_socket { read write };
+

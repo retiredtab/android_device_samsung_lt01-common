@@ -12,3 +12,7 @@ allow sysinit kernel:system syslog_read;
 allow sysinit firmware_exynos:dir { add_name write search getattr open read remove_name };
 allow sysinit firmware_exynos:file { create getattr open read setattr unlink write };
 
+#============= sysinit ==============
+allow sysinit cache_file:dir getattr;
+allow sysinit storage_file:dir getattr;
+

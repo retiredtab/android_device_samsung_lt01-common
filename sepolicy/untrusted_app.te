@@ -7,3 +7,16 @@ allow untrusted_app log_device:chr_file { read write };
 allow untrusted_app self:udp_socket ioctl;
 allow untrusted_app app_data_file:file create_file_perms;
 allow untrusted_app app_data_file:dir create_dir_perms;
+
+#============= untrusted_app ==============
+allow untrusted_app adbsecure_prop:file r_file_perms;
+allow untrusted_app adbtcp_prop:file r_file_perms;
+allow untrusted_app block_device:dir r_dir_perms;
+allow untrusted_app device:dir r_dir_perms;
+allow untrusted_app efs_file:dir getattr;
+allow untrusted_app radio_data_file:dir search;
+allow untrusted_app radio_data_file:file r_file_perms;
+allow untrusted_app recovery_prop:file r_file_perms;
+allow untrusted_app rootfs:dir r_dir_perms;
+allow untrusted_app userinit_prop:file r_file_perms;
+

@@ -8,3 +8,7 @@ allow system_server socket_device:dir write;
 allow system_server qmuxd:unix_stream_socket connectto;
 allow system_server socket_device:dir add_name;
 allow system_server socket_device:sock_file { write create setattr };
+
+#============= system_server ==============
+allow system_server gpsd:binder transfer;
+

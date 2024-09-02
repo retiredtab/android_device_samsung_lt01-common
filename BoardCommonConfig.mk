@@ -214,6 +214,8 @@ else
 BOARD_SEPOLICY_DIRS += device/samsung/lt01-common/sepolicy
 endif
 
+BOARD_PLAT_PRIVATE_SEPOLICY_DIR += device/samsung/lt01-common/sepolicy/private
+
 # Charging mode
 BOARD_CHARGING_CMDLINE_NAME := lpcharge
 BOARD_CHARGING_CMDLINE_VALUE := 1
